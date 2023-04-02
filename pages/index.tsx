@@ -1,15 +1,37 @@
 import Head from 'next/head'
 import Image from 'next/image'
 import Editor from '@monaco-editor/react'
+import { useEffect, useRef, useState } from 'react'
 
 export default function Home() {
+  const demoStringKey = useRef<string[]>('.my-style {\n\twidth: 100%;\n\theight: 50%;\n\tpadding: 16px;\n\tmargin: 8px 16px 12px;\n\tdisplay: flex;\n\tjustify-content: space-between;\n\tbackground-color: #252526;'.split(''))
+  
   const handleChange = (val: string | undefined, event: any) => {
-		console.log(val)
+		// console.log(val)
 	}
+  const editorRef = useRef(null)
 
-	const value = `* {
-    color: red;
-  }`
+  const tmpStringRef = useRef<string>('')
+
+  const run = () => {
+    if (demoStringKey.current.length === 0) {
+      tmpStringRef.current = '';
+      return
+    }
+    const editor = document.getElementsByClassName('inputarea')[0] as HTMLTextAreaElement
+    editor.value = tmpStringRef.current += demoStringKey.current.shift()
+    const e = new Event('input', { bubbles: true })
+    editor.dispatchEvent(e)
+    setTimeout(() => {
+      run()
+    }, 50)
+  }
+
+  const handleEditorDidMount = (editor: any, monaco: any) => {
+    editorRef.current = editor;
+    editor.focus()
+    run()
+  }
 
   return (
     <>
@@ -25,7 +47,11 @@ export default function Home() {
 				theme='vs-dark'
 				height='80vh'
 				onChange={handleChange}
-				value={value}
+				value={''}
+        onMount={handleEditorDidMount}
+        options={{
+          fontSize: 18,
+        }}
 			/>
       </main>
     </>
