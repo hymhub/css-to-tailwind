@@ -1,4 +1,4 @@
-import { toast } from 'react-toastify'
+import { cssTransition, toast } from 'react-toastify'
 import Clipboard from 'clipboard'
 
 export const copyText = (str: string) => {
@@ -8,7 +8,7 @@ export const copyText = (str: string) => {
       autoClose: 3000,
       hideProgressBar: false,
       closeOnClick: true,
-      pauseOnHover: true,
+      pauseOnHover: false,
       draggable: true,
       progress: undefined,
       theme: "dark",
@@ -28,10 +28,15 @@ export const copyText = (str: string) => {
       autoClose: 3000,
       hideProgressBar: false,
       closeOnClick: true,
-      pauseOnHover: true,
+      pauseOnHover: false,
       draggable: true,
       progress: undefined,
       theme: "dark",
+      transition: cssTransition({
+        enter: `Toastify--animate Toastify__slide-enter`,
+        exit: `Toastify--animate Toastify__slide-exit`,
+        appendPosition: true,
+      })
     });
   })
   clipboard.on('error', (e) => {
@@ -41,7 +46,7 @@ export const copyText = (str: string) => {
       autoClose: 3000,
       hideProgressBar: false,
       closeOnClick: true,
-      pauseOnHover: true,
+      pauseOnHover: false,
       draggable: true,
       progress: undefined,
       theme: "dark",
