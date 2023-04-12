@@ -17,19 +17,17 @@ export default function Home() {
   ])
   const [demoEnded, setDemoEnded] = useState<boolean>(true)
 
-  const demoStringKey = useRef<string[]>('.my-style {\n\twidth: 100%;\n\theight: 50%;\n\tpadding: 16px;\n\tmargin: 8px 16px 12px;\n\tdisplay: flex;\n\tjustify-content: space-between;\n\tbackground-color: #252526;'.split(''))
+  const demoStringKey = useRef<string[]>('body {\nmargin: 0;\nbackground-color: #252526;↓\n\n.my-style {\nwidth: 100%;\nheight: 50%;\npadding: 16px;\nmargin: 8px 16px 12px;\ndisplay: flex;\njustify-content: space-between;'.split(''))
 
   const handleChange = (val: string | undefined, event: any) => {
     setSourceVal(val ?? '')
   }
 
-  const editorElement = useRef<HTMLTextAreaElement>()
-
   const tmpStringRef = useRef<string>('')
 
   const startTimeRef = useRef<number>(0)
 
-  const run = () => {
+  const run = (editor: any) => {
     if (demoStringKey.current.length === 0) {
       tmpStringRef.current = ''
       window.removeEventListener('click', windowClick!)
@@ -40,13 +38,19 @@ export default function Home() {
     }
 
     window.requestAnimationFrame(() => {
-      if (Date.now() - startTimeRef.current >= 30 && editorElement.current) {
+      if (Date.now() - startTimeRef.current >= 30) {
         startTimeRef.current = Date.now()
-        editorElement.current.value = tmpStringRef.current += demoStringKey.current.shift()
-        const e = new Event('input', { bubbles: true })
-        editorElement.current.dispatchEvent(e)
+        const nextStr = demoStringKey.current.shift()
+        if (nextStr === '↓') {
+          const currentPosition = editor.getPosition();
+          const nextLine = currentPosition.lineNumber + 1;
+          const nextColumn = currentPosition.column;
+          editor.setPosition({ lineNumber: nextLine, column: nextColumn });
+        } else {
+          editor.trigger("keyboard", "type", { text: nextStr });
+        }
       }
-      run()
+      run(editor)
     })
   }
 
@@ -55,13 +59,12 @@ export default function Home() {
     setDemoEnded(false)
     editor.focus()
     startTimeRef.current = Date.now()
-    editorElement.current = document.getElementsByClassName('inputarea')[0] as HTMLTextAreaElement
     document.documentElement.style.pointerEvents = 'none'
     windowClick = () => {
       editor.focus()
     }
     window.addEventListener('click', windowClick)
-    run()
+    run(editor)
   }
 
   return (
