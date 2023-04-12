@@ -68,8 +68,9 @@ export default function Home() {
   }
 
   return (
-    <div>
-      <div className='p-[16px] font-[Consolas,_"Courier_New",_monospace]'>
+    <div className='2xl:grid 2xl:grid-cols-2 2xl:grid-flow-row-dense'>
+      <div className='p-[16px] font-[Consolas,_"Courier_New",_monospace] 2xl:col-start-2'>
+        <h2 className='text-[#abb2bf] mb-[16px] 2xl:text-center text-[20px] font-bold'>Out Code</h2>
         {
           resultVals.map((it, key) => (
             <div key={key}>
