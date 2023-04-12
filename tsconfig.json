@@ -21,6 +21,7 @@
       "@/styles/*": ["styles/*"],
       "@/utils/*": ["utils/*"],
       "@/hooks/*": ["hooks/*"],
+      "@/types/*": ["types/*"],
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
