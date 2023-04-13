@@ -36,7 +36,9 @@
     "import/order": [
       "error",
       {
-        "alphabetize": { "order": "asc" },
+        "alphabetize": {
+          "order": "asc"
+        },
         "groups": [
           "builtin",
           "external",
@@ -53,7 +55,12 @@
     "semi": ["error", "never"],
     "indent": ["error", 2],
     "no-extra-semi": "error",
-    "no-multiple-empty-lines": ["error", {"max": 2}],
+    "no-multiple-empty-lines": [
+      "error",
+      {
+        "max": 2
+      }
+    ],
     "comma-dangle": ["error", "never"],
     "space-before-function-paren": ["error", "never"],
     "no-var": "error",
