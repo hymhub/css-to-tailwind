@@ -1,100 +1,102 @@
-import Head from "next/head";
-import Image from "next/image";
-import Editor from "@monaco-editor/react";
-import { useEffect, useRef, useState } from "react";
-import { copyText } from "@/utils/index";
-import clsx from "clsx";
-import SvgDark from "@/assets/svg/dark.svg";
-import SvgLight from "@/assets/svg/light.svg";
+import Editor from '@monaco-editor/react'
+import clsx from 'clsx'
+import Head from 'next/head'
+import Image from 'next/image'
+import { useEffect, useRef, useState } from 'react'
+import SvgDark from '@/assets/svg/dark.svg'
+import SvgLight from '@/assets/svg/light.svg'
+import { copyText } from '@/utils/index'
 
-let windowClick: (() => void) | null;
+
+let windowClick: (() => void) | null
 
 export default function Home() {
-  const [isDarkTheme, setIsDarkTheme] = useState<boolean>();
-  const [sourceVal, setSourceVal] = useState<string>("");
+  const [isDarkTheme, setIsDarkTheme] = useState<boolean>()
+  const [sourceVal, setSourceVal] = useState<string>('')
+
   const [resultVals, setResultVals] = useState<ResultCode[]>([
     {
-      className: ".my-style",
-      resultVal: "bg-[#41454e] text-[#abb2bf] border-none",
-    },
-  ]);
-  const [demoEnded, setDemoEnded] = useState<boolean>(true);
+      className: '.my-style',
+      resultVal: 'bg-[#41454e] text-[#abb2bf] border-none'
+    }
+  ])
+  const [demoEnded, setDemoEnded] = useState<boolean>(true)
 
   const demoStringKey = useRef<string[]>(
-    "body {\nmargin: 0;\nbackground-color: #252526;↓\n\n.my-style {\nwidth: 100%;\nheight: 50%;\npadding: 16px;\nmargin: 8px 16px 12px;\ndisplay: flex;\njustify-content: space-between;".split(
-      ""
+    'body {\nmargin: 0;\nbackground-color: #252526;↓\n\n.my-style {\nwidth: 100%;\nheight: 50%;\npadding: 16px;\nmargin: 8px 16px 12px;\ndisplay: flex;\njustify-content: space-between;'.split(
+      ''
     )
-  );
+  )
 
   const handleChange = (val: string | undefined, event: any) => {
-    setSourceVal(val ?? "");
-  };
+    setSourceVal(val ?? '')
+  }
 
-  const tmpStringRef = useRef<string>("");
+  const tmpStringRef = useRef<string>('')
 
-  const startTimeRef = useRef<number>(0);
+  const startTimeRef = useRef<number>(0)
 
   const run = (editor: any) => {
     if (demoStringKey.current.length === 0) {
-      tmpStringRef.current = "";
-      window.removeEventListener("click", windowClick!);
-      document.documentElement.style.pointerEvents = "";
-      windowClick = null;
-      setDemoEnded(true);
-      return;
+      tmpStringRef.current = ''
+      windowClick && window.removeEventListener('click', windowClick)
+      document.documentElement.style.pointerEvents = ''
+      windowClick = null
+      setDemoEnded(true)
+      return
     }
 
     window.requestAnimationFrame(() => {
       if (Date.now() - startTimeRef.current >= 30) {
-        startTimeRef.current = Date.now();
-        const nextStr = demoStringKey.current.shift();
-        if (nextStr === "↓") {
-          const currentPosition = editor.getPosition();
-          const nextLine = currentPosition.lineNumber + 1;
-          const nextColumn = currentPosition.column;
-          editor.setPosition({ lineNumber: nextLine, column: nextColumn });
+        startTimeRef.current = Date.now()
+        const nextStr = demoStringKey.current.shift()
+        if (nextStr === '↓') {
+          const currentPosition = editor.getPosition()
+          const nextLine = currentPosition.lineNumber + 1
+          const nextColumn = currentPosition.column
+          editor.setPosition({ lineNumber: nextLine, column: nextColumn })
         } else {
-          editor.trigger("keyboard", "type", { text: nextStr });
+          editor.trigger('keyboard', 'type', { text: nextStr })
         }
       }
-      run(editor);
-    });
-  };
+      run(editor)
+    })
+  }
 
   const handleEditorDidMount = (editor: any, monaco: any) => {
-    setDemoEnded(false);
-    editor.focus();
-    startTimeRef.current = Date.now();
-    document.documentElement.style.pointerEvents = "none";
+    setDemoEnded(false)
+    editor.focus()
+    startTimeRef.current = Date.now()
+    document.documentElement.style.pointerEvents = 'none'
     windowClick = () => {
-      editor.focus();
-    };
-    window.addEventListener("click", windowClick);
-    run(editor);
-  };
+      editor.focus()
+    }
+    window.addEventListener('click', windowClick)
+    run(editor)
+  }
 
   const themeChange = () => {
-    setIsDarkTheme((v) => !v);
-  };
+    setIsDarkTheme((v) => !v)
+  }
 
   const setTheme = () => {
-    if (localStorage.theme === "dark") {
-      document.documentElement.classList.add("dark");
+    if (localStorage.theme === 'dark') {
+      document.documentElement.classList.add('dark')
     } else {
-      document.documentElement.classList.remove("dark");
+      document.documentElement.classList.remove('dark')
     }
-  };
+  }
 
   useEffect(() => {
-    setIsDarkTheme((localStorage.theme ?? "dark") === "dark");
-  }, []);
+    setIsDarkTheme((localStorage.theme ?? 'dark') === 'dark')
+  }, [])
 
   useEffect(() => {
     if (isDarkTheme !== undefined) {
-      localStorage.theme = isDarkTheme ? "dark" : "light";
+      localStorage.theme = isDarkTheme ? 'dark' : 'light'
     }
-    setTheme();
-  }, [isDarkTheme]);
+    setTheme()
+  }, [isDarkTheme])
 
   return (
     <div className="2xl:grid 2xl:grid-cols-2 2xl:grid-flow-row-dense h-dom-height max-2xl:overflow-y-auto">
@@ -111,10 +113,10 @@ export default function Home() {
           <div key={key}>
             <button
               className={clsx(
-                "dark:bg-[#41454e] bg-[#eeeeee] [border:2px_solid_#e7e7e7] dark:[border:2px_solid_#1e1e1e] p-[8px_16px] font-bold text-[18px] cursor-pointer filter hover:brightness-110 active:enabled:brightness-90",
-                { "opacity-50": !demoEnded }
+                'dark:bg-[#41454e] bg-[#eeeeee] [border:2px_solid_#e7e7e7] dark:[border:2px_solid_#1e1e1e] p-[8px_16px] font-bold text-[18px] cursor-pointer filter hover:brightness-110 active:enabled:brightness-90',
+                { 'opacity-50': !demoEnded }
               )}
-              onClick={() => copyText(it.resultVal)}
+              onClick={() => { copyText(it.resultVal) }}
               disabled={!demoEnded}
             >
               Copy {it.className} Result Code
@@ -131,15 +133,15 @@ export default function Home() {
       <section className="2xl:h-full h-2/3 [border:1px_solid_#d9dce1] dark:[border:1px_solid_transparent]">
         <Editor
           language="css"
-          theme={isDarkTheme ? "vs-dark" : "light"}
+          theme={isDarkTheme ? 'vs-dark' : 'light'}
           onChange={handleChange}
-          value={""}
+          value={''}
           onMount={handleEditorDidMount}
           options={{
-            fontSize: 18,
+            fontSize: 18
           }}
         />
       </section>
     </div>
-  );
+  )
 }

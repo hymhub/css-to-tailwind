@@ -3,7 +3,7 @@ import { useEffect } from 'react'
 const domHeightChange = () => {
   document.documentElement.style.setProperty('--dom-height', `${window.innerHeight}px`)
 }
-function useDomHeightWatcher() {
+const useDomHeightWatcher = () => {
   useEffect(() => {
     window.addEventListener('resize', domHeightChange)
     domHeightChange()

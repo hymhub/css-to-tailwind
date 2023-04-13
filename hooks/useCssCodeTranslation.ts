@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState } from 'react'
 
 export const useCssCodeTranslation = (sourceCode: string) => {
-  const resultCode = useState<ResultCode>();
+  const resultCode = useState<ResultCode>()
 
-  return resultCode;
-};
+  return resultCode
+}
