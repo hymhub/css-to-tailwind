@@ -11,7 +11,7 @@ export const copyText = (str: string) => {
       pauseOnHover: false,
       draggable: true,
       progress: undefined,
-      theme: "dark",
+      theme: localStorage.theme === "dark" ? "dark" : "light",
     });
     return
   }
@@ -31,7 +31,7 @@ export const copyText = (str: string) => {
       pauseOnHover: false,
       draggable: true,
       progress: undefined,
-      theme: "dark",
+      theme: localStorage.theme === "dark" ? "dark" : "light",
       transition: cssTransition({
         enter: `Toastify--animate Toastify__slide-enter`,
         exit: `Toastify--animate Toastify__slide-exit`,
@@ -49,7 +49,7 @@ export const copyText = (str: string) => {
       pauseOnHover: false,
       draggable: true,
       progress: undefined,
-      theme: "dark",
+      theme: localStorage.theme === "dark" ? "dark" : "light",
     });
   })
   document.body.appendChild(fakeElement)

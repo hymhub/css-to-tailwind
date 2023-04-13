@@ -1,3 +1,4 @@
+import useDomHeightWatcher from '@/hooks/useDomHeightWatcher'
 import '@/styles/globals.css'
 import type { AppProps } from 'next/app'
 import Head from 'next/head'
@@ -6,6 +7,7 @@ import 'react-toastify/dist/ReactToastify.css'
 import "tailwindcss/tailwind.css"
 
 export default function App({ Component, pageProps }: AppProps) {
+  useDomHeightWatcher()
   return (
     <>
       <Head>

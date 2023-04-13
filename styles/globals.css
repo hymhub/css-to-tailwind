@@ -1,5 +1,13 @@
 body {
-  background-color: #252526;
+  background-color: #ffffff;
   padding: 0;
   margin: 0;
+}
+
+html.dark > body {
+  background-color: #252526;
+}
+
+*[class*="dark:"] {
+  transition: all 300ms;
 }
