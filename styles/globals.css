@@ -33,7 +33,7 @@ html.dark [data-simplebar="init"] .simplebar-scrollbar:before {
 }
 
 .simplebar-track.simplebar-vertical {
-  width: 15px;
+  width: 14px;
   background-color: #fffffe;
   border: 1px solid #dcdcdb;
 }

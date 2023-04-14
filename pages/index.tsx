@@ -204,7 +204,7 @@ export default function Home() {
       </section>
       <section
         ref={editorContainerRef}
-        className="2xl:h-full h-1/2 [border:1px_solid_#d9dce1] dark:[border:1px_solid_transparent]"
+        className="2xl:h-full h-1/2 border-t-[1px] border-solid border-[#d9dce1] dark:border-transparent"
       >
         <Editor
           language="css"
