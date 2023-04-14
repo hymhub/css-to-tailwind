@@ -4,10 +4,41 @@ body {
   margin: 0;
 }
 
-html.dark > body {
+html.dark>body {
   background-color: #252526;
 }
 
 *[class*="dark:"] {
   transition: all 300ms;
+}
+
+[data-simplebar="init"] .simplebar-scrollbar:before {
+  width: 100%;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 0;
+  background-color: #c1c1c0;
+  transition: opacity 1s linear;
+}
+
+html.dark [data-simplebar="init"] .simplebar-scrollbar:before {
+  background-color: #424242;
+}
+
+[data-simplebar="init"]:hover .simplebar-scrollbar:before {
+  transition: opacity .2s linear;
+  opacity: 1;
+}
+
+.simplebar-track.simplebar-vertical {
+  width: 15px;
+  background-color: #fffffe;
+  border: 1px solid #dcdcdb;
+}
+
+html.dark .simplebar-track.simplebar-vertical {
+  background-color: #1e1e1e;
+  border: 1px solid #393939;
 }
