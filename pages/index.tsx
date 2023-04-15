@@ -6,7 +6,8 @@ import { useEffect, useRef, useState } from 'react'
 import SimpleBar from 'simplebar-react'
 import SvgDark from '@/assets/svg/dark.svg'
 import SvgLight from '@/assets/svg/light.svg'
-import { copyText } from '@/utils/index'
+import { CssToTailwindTranslator, specialAttribute } from '@/hooks/CssToTailwindTranslator'
+import { copyText, toast } from '@/utils/index'
 
 let windowClick: (() => void) | null
 const ePreventDefault = (e: KeyboardEvent) => {
@@ -15,71 +16,23 @@ const ePreventDefault = (e: KeyboardEvent) => {
 
 export default function Home() {
   const [isDarkTheme, setIsDarkTheme] = useState<boolean>()
-  const [sourceVal, setSourceVal] = useState<string>('')
-  const [resultVals, setResultVals] = useState<ResultCode[]>([
-    {
-      className: '.my-style',
-      resultVal: 'bg-[#41454e] text-[#abb2bf] border-none'
-    },
-    {
-      className: '.my-style',
-      resultVal: 'bg-[#41454e] text-[#abb2bf] border-none'
-    },
-    {
-      className: '.my-style',
-      resultVal: 'bg-[#41454e] text-[#abb2bf] border-none'
-    },
-    {
-      className: '.my-style',
-      resultVal: 'bg-[#41454e] text-[#abb2bf] border-none'
-    },
-    {
-      className: '.my-style',
-      resultVal: 'bg-[#41454e] text-[#abb2bf] border-none'
-    },
-    {
-      className: '.my-style',
-      resultVal: 'bg-[#41454e] text-[#abb2bf] border-none'
-    },
-    {
-      className: '.my-style',
-      resultVal: 'bg-[#41454e] text-[#abb2bf] border-none'
-    },
-    {
-      className: '.my-style',
-      resultVal: 'bg-[#41454e] text-[#abb2bf] border-none'
-    },
-    {
-      className: '.my-style',
-      resultVal: 'bg-[#41454e] text-[#abb2bf] border-none'
-    },
-    {
-      className: '.my-style',
-      resultVal: 'bg-[#41454e] text-[#abb2bf] border-none'
-    },
-    {
-      className: '.my-style',
-      resultVal: 'bg-[#41454e] text-[#abb2bf] border-none'
-    },
-    {
-      className: '.my-style',
-      resultVal: 'bg-[#41454e] text-[#abb2bf] border-none'
-    },
-    {
-      className: '.my-style',
-      resultVal: 'bg-[#41454e] text-[#abb2bf] border-none'
-    }
-  ])
+  const [resultVals, setResultVals] = useState<ResultCode[]>([])
   const [demoEnded, setDemoEnded] = useState<boolean>(true)
 
   const demoStringKey = useRef<string[]>(
-    'body {\nmargin: 0;\nbackground-color: #252526;↓\n\n.my-style {\nwidth: 100%;\nheight: 50%;\npadding: 16px;\nmargin: 8px 16px 12px;\ndisplay: flex;\njustify-content: space-between;'.split(
+    'body {\nmargin: 0;\nbackground-color: #252526;↓\n\n.my-style {\nwidth: 100%;\nheight: 50%;\nbackdrop-filter: blur(5px) contrast(1.2);\nmargin: 8px 16px 12px;\ndisplay: flex;\njustify-content: space-between;↓\n\n@media (min-width: 1536px) {\n.my-media{\ndisplay: grid;\ngrid-auto-flow: row dense;'.split(
       ''
     )
   )
 
   const handleChange = (val: string | undefined, event: any) => {
-    setSourceVal(val ?? '')
+    const result = CssToTailwindTranslator(val ?? '')
+    if (result.code === 'SyntaxError') {
+      toast.error(`[${specialAttribute.join(', ')}] syntax does not support conversion`, {
+        toastId: 'SyntaxError'
+      })
+    }
+    setResultVals(result.data)
   }
 
   const tmpStringRef = useRef<string>('')
@@ -190,10 +143,10 @@ export default function Home() {
                 }}
                 disabled={!demoEnded}
               >
-                Copy {it.className} Result Code
+                Copy {it.selectorName} Result Code
               </button>
               <p className="text-[18px] leading-[30px] my-[16px]">
-                <span className="font-bold">{it.className} Result Code: </span>
+                <span className="font-bold">{it.selectorName} Result Code: </span>
                 <span className="dark:bg-[#1e1e1e] bg-[#e8e8e8] dark:text-[#b5cea8] text-[#098658] p-[6px_10px]">
                   {it.resultVal}
                 </span>

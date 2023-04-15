@@ -1,4 +1,4 @@
 interface ResultCode {
-  className: string
+  selectorName: string
   resultVal: string
 }
