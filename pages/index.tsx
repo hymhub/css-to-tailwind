@@ -73,38 +73,38 @@ export default function Home() {
   }, [resultVals])
 
   // 采用节流缓解 flip 动画问题
-  const handleChangeHrottleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const handleChange = (val: string | undefined, event: any) => {
-    if (!handleChangeHrottleTimerRef.current) {
-      handleChangeHrottleTimerRef.current = setTimeout(() => {
-        const result = CssToTailwindTranslator(val ?? '')
-        if (result.code === 'SyntaxError') {
-          toast.error(
-            `[${specialAttribute.join(', ')}] syntax does not support conversion`,
-            {
-              toastId: 'SyntaxError'
-            }
-          )
-        }
-        setResultVals(result.data)
-        handleChangeHrottleTimerRef.current = null
-      }, 200)
-    }
-  }
-
-  // 不采用节流，解决不了自定义值 flip 动画问题，用节流也只能缓解
+  // const handleChangeHrottleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   // const handleChange = (val: string | undefined, event: any) => {
-  //   const result = CssToTailwindTranslator(val ?? '')
-  //   if (result.code === 'SyntaxError') {
-  //     toast.error(
-  //       `[${specialAttribute.join(', ')}] syntax does not support conversion`,
-  //       {
-  //         toastId: 'SyntaxError'
+  //   if (!handleChangeHrottleTimerRef.current) {
+  //     handleChangeHrottleTimerRef.current = setTimeout(() => {
+  //       const result = CssToTailwindTranslator(val ?? '')
+  //       if (result.code === 'SyntaxError') {
+  //         toast.error(
+  //           `[${specialAttribute.join(', ')}] syntax does not support conversion`,
+  //           {
+  //             toastId: 'SyntaxError'
+  //           }
+  //         )
   //       }
-  //     )
+  //       setResultVals(result.data)
+  //       handleChangeHrottleTimerRef.current = null
+  //     }, 200)
   //   }
-  //   setResultVals(result.data)
   // }
+
+  // 不采用节流，自定义值 flip 动画问题，用节流也只能缓解，目前无解
+  const handleChange = (val: string | undefined, event: any) => {
+    const result = CssToTailwindTranslator(val ?? '')
+    if (result.code === 'SyntaxError') {
+      toast.error(
+        `[${specialAttribute.join(', ')}] syntax does not support conversion`,
+        {
+          toastId: 'SyntaxError'
+        }
+      )
+    }
+    setResultVals(result.data)
+  }
 
   const tmpStringRef = useRef<string>('')
   const startTimeRef = useRef<number>(0)
@@ -124,7 +124,7 @@ export default function Home() {
     }
 
     window.requestAnimationFrame(() => {
-      if (Date.now() - startTimeRef.current >= 30) {
+      if (Date.now() - startTimeRef.current >= 16) {
         startTimeRef.current = Date.now()
         const nextStr = demoStringKey.current.shift()
         if (nextStr === '↓') {
@@ -211,14 +211,10 @@ export default function Home() {
             {computedResultVals.map((it) => (
               <div key={it.id}>
                 <button
-                  className={clsx(
-                    'dark:bg-[#41454e] bg-[#eeeeee] [border:2px_solid_#e7e7e7] dark:[border:2px_solid_#1e1e1e] p-[8px_16px] font-bold text-[18px] cursor-pointer filter hover:brightness-105 active:enabled:brightness-95',
-                    { 'opacity-50': !demoEnded }
-                  )}
+                  className="dark:bg-[#41454e] bg-[#eeeeee] [border:2px_solid_#e7e7e7] dark:[border:2px_solid_#1e1e1e] p-[8px_16px] font-bold text-[18px] cursor-pointer filter hover:brightness-105 active:enabled:brightness-95"
                   onClick={() => {
-                    copyText(it.resultVal.join(' '))
+                    copyText(it.resultVal.map(v => v.val).join(' '))
                   }}
-                  disabled={!demoEnded}
                 >
                   Copy {it.selectorName} Result Code
                 </button>
