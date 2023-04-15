@@ -128,7 +128,7 @@ const propertyMap = new Map<string, Record<string, string> | ((val: string) => s
       const vals = getCustomVal(val).replace(/\(.+?\)/g, v => v.replace(/_/g, '')).split(')_').map(v => `${v})`)
       vals[vals.length - 1] = vals[vals.length - 1].slice(0, -1)
 
-      return `backdrop-filter ${vals.map(v => v.replace(/^([a-z-]+)\((.+?)\)$/, (r, k: string, v) => backdropFilterValConfig[k](v))).join(' ')}`
+      return `backdrop-filter ${[...new Set(vals.map(v => v.replace(/^([a-z-]+)\((.+?)\)$/, (r, k: string, v) => backdropFilterValConfig[k](v))))].join(' ')}`
     }
   ],
   [
@@ -1715,9 +1715,9 @@ export const CssToTailwindTranslator = (code: string): {
       if (typeof it.cssCode === 'string') {
         const cssCodeList = it.cssCode.split(';')
         cssCodeList[cssCodeList.length - 1] = cssCodeList[cssCodeList.length - 1].slice(0, -1)
-        console.log('====================================')
-        console.log(cssCodeList)
-        console.log('====================================')
+        // console.log('====================================')
+        // console.log(cssCodeList)
+        // console.log('====================================')
         const resultVals = cssCodeList.map(v => {
           let key = ''
           let val = ''
@@ -1731,9 +1731,9 @@ export const CssToTailwindTranslator = (code: string): {
             }
           }
           const pipe = propertyMap.get(key.trim())
-          console.log('===val=====')
-          console.log(val)
-          console.log('val========')
+          // console.log('===val=====')
+          // console.log(val)
+          // console.log('val========')
           return typeof pipe === 'function' ? pipe(val) : (pipe?.[val] ?? '')
         }).filter(v => v !== '')
         return {

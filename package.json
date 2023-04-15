@@ -12,20 +12,22 @@
   },
   "dependencies": {
     "@monaco-editor/react": "^4.4.6",
-    "@types/node": "18.15.5",
-    "@types/react": "18.0.28",
-    "@types/react-dom": "18.0.11",
     "clipboard": "^2.0.11",
     "clsx": "^1.2.1",
-    "eslint-config-next": "13.2.4",
     "next": "13.2.4",
     "react": "18.2.0",
     "react-dom": "18.2.0",
+    "react-flip-move": "^3.0.5",
     "react-toastify": "^9.1.2",
-    "simplebar-react": "^3.2.3"
+    "simplebar-react": "^3.2.3",
+    "uuid": "^9.0.0"
   },
   "devDependencies": {
     "@svgr/webpack": "^7.0.0",
+    "@types/node": "18.15.5",
+    "@types/react": "18.0.28",
+    "@types/react-dom": "18.0.11",
+    "@types/uuid": "^9.0.1",
     "@typescript-eslint/eslint-plugin": "^5.58.0",
     "@typescript-eslint/parser": "^5.58.0",
     "autoprefixer": "^10.4.14",

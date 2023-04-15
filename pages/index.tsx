@@ -1,12 +1,16 @@
 import Editor from '@monaco-editor/react'
 import clsx from 'clsx'
-import Head from 'next/head'
 import Image from 'next/image'
 import { useEffect, useRef, useState } from 'react'
+import FlipMove from 'react-flip-move'
 import SimpleBar from 'simplebar-react'
+import { v4 as uuidv4 } from 'uuid'
 import SvgDark from '@/assets/svg/dark.svg'
 import SvgLight from '@/assets/svg/light.svg'
-import { CssToTailwindTranslator, specialAttribute } from '@/hooks/CssToTailwindTranslator'
+import {
+  CssToTailwindTranslator,
+  specialAttribute
+} from '@/hooks/CssToTailwindTranslator'
 import { copyText, toast } from '@/utils/index'
 
 let windowClick: (() => void) | null
@@ -20,20 +24,87 @@ export default function Home() {
   const [demoEnded, setDemoEnded] = useState<boolean>(true)
 
   const demoStringKey = useRef<string[]>(
-    'body {\nmargin: 0;\nbackground-color: #252526;↓\n\n.my-style {\nwidth: 100%;\nheight: 50%;\nbackdrop-filter: blur(5px) contrast(1.2);\nmargin: 8px 16px 12px;\ndisplay: flex;\njustify-content: space-between;↓\n\n@media (min-width: 1536px) {\n.my-media{\ndisplay: grid;\ngrid-auto-flow: row dense;'.split(
+    'body {\nmargin: 0;\nbackground-color: #252526;↓\n\n.my-style {\ndisplay: flex;\njustify-content: space-between;\nwidth: 100%;\nheight: 50%;\nbackdrop-filter: blur(5px) contrast(1.2);\nmargin: 8px 16px 12px;↓\n\n@media (min-width: 1536px) {\n.my-media{\ndisplay: grid;\ngrid-auto-flow: row dense;'.split(
       ''
     )
   )
 
+  const [computedResultVals, setComputedResultVals] = useState<
+    ComputedResultCode[]
+  >([])
+
+  useEffect(() => {
+    const resVals: ComputedResultCode[] = []
+    resultVals.forEach((it, index) => {
+      const t = computedResultVals.find(
+        (v) =>
+          v.selectorName + v.resultVal.map((v) => v.val).join(' ') ===
+          it.selectorName + it.resultVal
+      )
+
+      if (t != null && resVals.findIndex((v) => v.id === t.id) === -1) {
+        resVals.push(t)
+      } else {
+        resVals.push({
+          id:
+            resultVals.length === computedResultVals.length
+              ? computedResultVals[index].id
+              : uuidv4(),
+          selectorName: it.selectorName,
+          resultVal: it.resultVal.split(' ').map((v, idx) => {
+            const oldId = computedResultVals[index]?.resultVal.find((c) => {
+              const findRes = resVals[index]?.resultVal.findIndex(
+                (v) => v.id === c.id
+              )
+              return c.val === v && (findRes === -1 || findRes === undefined)
+            })?.id
+            return {
+              id:
+                resultVals.length === computedResultVals.length && !!oldId
+                  ? oldId
+                  : uuidv4(),
+              val: v
+            }
+          })
+        })
+      }
+    })
+    setComputedResultVals(resVals)
+  }, [resultVals])
+
+  // 采用节流缓解 flip 动画问题
+  const handleChangeHrottleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const handleChange = (val: string | undefined, event: any) => {
-    const result = CssToTailwindTranslator(val ?? '')
-    if (result.code === 'SyntaxError') {
-      toast.error(`[${specialAttribute.join(', ')}] syntax does not support conversion`, {
-        toastId: 'SyntaxError'
-      })
+    if (!handleChangeHrottleTimerRef.current) {
+      handleChangeHrottleTimerRef.current = setTimeout(() => {
+        const result = CssToTailwindTranslator(val ?? '')
+        if (result.code === 'SyntaxError') {
+          toast.error(
+            `[${specialAttribute.join(', ')}] syntax does not support conversion`,
+            {
+              toastId: 'SyntaxError'
+            }
+          )
+        }
+        setResultVals(result.data)
+        handleChangeHrottleTimerRef.current = null
+      }, 200)
     }
-    setResultVals(result.data)
   }
+
+  // 不采用节流，解决不了自定义值 flip 动画问题，用节流也只能缓解
+  // const handleChange = (val: string | undefined, event: any) => {
+  //   const result = CssToTailwindTranslator(val ?? '')
+  //   if (result.code === 'SyntaxError') {
+  //     toast.error(
+  //       `[${specialAttribute.join(', ')}] syntax does not support conversion`,
+  //       {
+  //         toastId: 'SyntaxError'
+  //       }
+  //     )
+  //   }
+  //   setResultVals(result.data)
+  // }
 
   const tmpStringRef = useRef<string>('')
   const startTimeRef = useRef<number>(0)
@@ -109,7 +180,7 @@ export default function Home() {
 
   return (
     <div className="2xl:grid 2xl:grid-cols-2 2xl:grid-flow-row-dense h-dom-height max-2xl:overflow-y-auto">
-      <section className='font-[Consolas,_"Courier_New",_monospace] 2xl:col-start-2 relative 2xl:h-full max-2xl:max-h-[50%] overflow-y-auto text-[#111827] dark:text-[#abb2bf]'>
+      <section className='font-[Consolas,_"Courier_New",_monospace] 2xl:col-start-2 relative 2xl:h-full max-2xl:h-1/2 overflow-y-auto text-[#111827] dark:text-[#abb2bf]'>
         <button
           onClick={themeChange}
           className="w-[60px] h-[32px] absolute right-[16px] top-[16px] rounded-[16px] border-solid border-[1px] dark:border-[rgba(82,82,89,.68)] dark:bg-[#313136] border-[rgba(60,60,67,.29)] bg-[#eeeeee]"
@@ -130,29 +201,51 @@ export default function Home() {
         <h2 className="m-[16px] 2xl:text-center text-[22px] font-bold h-[32px]">
           Out Code
         </h2>
-        <SimpleBar className="2xl:h-[calc(100%-64px)] max-2xl:max-h-[calc(var(--dom-height)/2-64px)] overflow-y-auto px-[16px]">
-          {resultVals.map((it, key) => (
-            <div key={key}>
-              <button
-                className={clsx(
-                  'dark:bg-[#41454e] bg-[#eeeeee] [border:2px_solid_#e7e7e7] dark:[border:2px_solid_#1e1e1e] p-[8px_16px] font-bold text-[18px] cursor-pointer filter hover:brightness-105 active:enabled:brightness-95',
-                  { 'opacity-50': !demoEnded }
-                )}
-                onClick={() => {
-                  copyText(it.resultVal)
-                }}
-                disabled={!demoEnded}
-              >
-                Copy {it.selectorName} Result Code
-              </button>
-              <p className="text-[18px] leading-[30px] my-[16px]">
-                <span className="font-bold">{it.selectorName} Result Code: </span>
-                <span className="dark:bg-[#1e1e1e] bg-[#e8e8e8] dark:text-[#b5cea8] text-[#098658] p-[6px_10px]">
-                  {it.resultVal}
-                </span>
-              </p>
-            </div>
-          ))}
+        <SimpleBar className="h-[calc(100%-64px)] overflow-y-auto px-[16px]">
+          <FlipMove
+            typeName="div"
+            enterAnimation="accordionVertical"
+            leaveAnimation="accordionVertical"
+            duration={200}
+          >
+            {computedResultVals.map((it) => (
+              <div key={it.id}>
+                <button
+                  className={clsx(
+                    'dark:bg-[#41454e] bg-[#eeeeee] [border:2px_solid_#e7e7e7] dark:[border:2px_solid_#1e1e1e] p-[8px_16px] font-bold text-[18px] cursor-pointer filter hover:brightness-105 active:enabled:brightness-95',
+                    { 'opacity-50': !demoEnded }
+                  )}
+                  onClick={() => {
+                    copyText(it.resultVal.join(' '))
+                  }}
+                  disabled={!demoEnded}
+                >
+                  Copy {it.selectorName} Result Code
+                </button>
+                <p className="text-[18px] leading-[30px] my-[16px]">
+                  <span className="font-bold block mb-[8px]">
+                    {it.selectorName} Result Code:{' '}
+                  </span>
+                  <FlipMove
+                    className="dark:bg-[#1e1e1e] bg-[#e8e8e8] dark:text-[#b5cea8] text-[#098658] pt-[6px] pr-[10px] pl-[2px] inline-flex flex-wrap"
+                    typeName="span"
+                    enterAnimation="accordionHorizontal"
+                    leaveAnimation="accordionHorizontal"
+                    duration={200}
+                  >
+                    {it.resultVal.map((v) => (
+                      <span
+                        className="ml-[8px] h-[22px] inline-block overflow-hidden leading-[22px] mb-[6px]"
+                        key={v.id}
+                      >
+                        {v.val}
+                      </span>
+                    ))}
+                  </FlipMove>
+                </p>
+              </div>
+            ))}
+          </FlipMove>
         </SimpleBar>
       </section>
       <section
