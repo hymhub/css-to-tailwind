@@ -6,6 +6,11 @@
 //   return pre
 // }, {})).slice(1, -1)
 
+// JSON.stringify([...[...document.querySelector('.reference > tbody').children].slice(1).map(el => ({[el.children[0].innerHTML]: `[${document.getElementsByClassName('color_h1')[0].innerHTML}:${el.children[0].innerHTML}]`})),{initial: `[${document.getElementsByClassName('color_h1')[0].innerHTML}:initial]`}].reduce((pre, cur) => {
+//   pre[Object.keys(cur)[0]] = Object.values(cur)[0]
+//   return pre
+// }, {})).slice(1, -1)
+
 export const specialAttribute = [
   '@charset',
   '@font-face',
@@ -409,7 +414,7 @@ const propertyMap: Map<string, Record<string, string> | ((val: string) => string
     'border',
     val => {
       val = val.replace(/\(.+?\)/, v => v.replace(/\s/g, ''))
-      const vals: string = val.split(' ').filter(v => v !== '').map(v => (isUnit(v) || isColor(v)) ? `border-[${v}]` : ((propertyMap.get('border-style') as Record<string, string>)[v] ?? '')).filter(v => v !== '').join(' ')
+      const vals: string = val.split(' ').filter(v => v !== '').map(v => (isUnit(v) || isColor(v)) ? ({ 'transparent': 'border-transparent', 'currentColor': 'border-current', 'currentcolor': 'border-current' }[val] ?? `border-[${v}]`) : ((propertyMap.get('border-style') as Record<string, string>)[v] ?? '')).filter(v => v !== '').join(' ')
       return vals
     }
   ],
@@ -603,164 +608,138 @@ const propertyMap: Map<string, Record<string, string> | ((val: string) => string
   [
     'box-align',
     {
-
+      'initial': '[box-align:initial]',
+      'start': '[box-align:inherit]',
+      'end': '[box-align:unset]',
+      'center': '[box-align:unset]',
+      'baseline': '[box-align:unset]',
+      'stretch': '[box-align:unset]'
     }
   ],
   [
     'box-direction',
     {
-
+      'initial': '[box-direction:initial]',
+      'normal': '[box-direction:normal]',
+      'reverse': '[box-direction:reverse]',
+      'inherit': '[box-direction:inherit]'
     }
   ],
   [
     'box-flex',
-    {
-
-    }
+    val => (`[box-flex:${getCustomVal(val)}]`)
   ],
   [
     'box-flex-group',
-    {
-
-    }
+    val => (`[box-flex-group:${getCustomVal(val)}]`)
   ],
   [
     'box-lines',
     {
-
+      'single': '[box-lines:single]', 'multiple': '[box-lines:multiple]', 'initial': '[box-lines:initial]'
     }
   ],
   [
     'box-ordinal-group',
-    {
-
-    }
+    val => (`[box-ordinal-group:${getCustomVal(val)}]`)
   ],
   [
     'box-orient',
     {
-
+      'horizontal': '[box-orient:horizontal]', 'vertical': '[box-orient:vertical]', 'inline-axis': '[box-orient:inline-axis]', 'block-axis': '[box-orient:block-axis]', 'inherit': '[box-orient:inherit]', 'initial': '[box-orient:initial]'
     }
   ],
   [
     'box-pack',
     {
-
+      'start': '[box-pack:start]', 'end': '[box-pack:end]', 'center': '[box-pack:center]', 'justify': '[box-pack:justify]', 'initial': '[box-pack:initial]'
     }
   ],
   [
     'box-shadow',
-    {
-
-    }
+    val => (`[box-shadow:${getCustomVal(val)}]`)
   ],
   [
     'box-sizing',
     {
-
+      'border-box': 'box-border', 'content-box': 'box-content'
     }
   ],
   [
     'caption-side',
     {
-
+      'top': '[caption-side:top]', 'bottom': '[caption-side:bottom]', 'inherit': '[caption-side:inherit]', 'initial': '[caption-side:initial]'
     }
   ],
   [
     'clear',
     {
-
+      'left': 'clear-left', 'right': 'clear-right', 'both': 'clear-both', 'none': 'clear-none'
     }
   ],
   [
     'clip',
-    {
-
-    }
+    val => (`[clip:${getCustomVal(val)}]`)
   ],
   [
     'clip-path',
-    {
-
-    }
+    val => (`[clip-path:${getCustomVal(val)}]`)
   ],
   [
     'color',
-    {
-
-    }
+    val => ({ 'transparent': 'text-transparent', 'currentColor': 'text-current', 'currentcolor': 'text-current' }[val] ?? (isColor(val, true) ? `text-[${getCustomVal(val)}]` : ''))
   ],
   [
     'color-scheme',
-    {
-
-    }
+    val => (`[color-scheme:${getCustomVal(val)}]`)
   ],
   [
     'column-count',
-    {
-
-    }
+    val => (`[column-count:${getCustomVal(val)}]`)
   ],
   [
     'column-fill',
     {
-
+      'balance': '[column-fill:balance]', 'auto': '[column-fill:auto]', 'initial': '[column-fill:initial]'
     }
   ],
   [
     'column-gap',
-    {
-
-    }
+    val => (`[column-gap:${getCustomVal(val)}]`)
   ],
   [
     'column-rule',
-    {
-
-    }
+    val => (`[column-rule:${getCustomVal(val)}]`)
   ],
   [
     'column-rule-color',
-    {
-
-    }
+    val => (isColor(val, true) ? `[column-rule-color:${getCustomVal(val)}]` : '')
   ],
   [
     'column-rule-style',
     {
-
+      'none': '[column-rule-style:none]', 'hidden': '[column-rule-style:hidden]', 'dotted': '[column-rule-style:dotted]', 'dashed': '[column-rule-style:dashed]', 'solid': '[column-rule-style:solid]', 'double': '[column-rule-style:double]', 'groove': '[column-rule-style:groove]', 'ridge': '[column-rule-style:ridge]', 'inset': '[column-rule-style:inset]', 'outset': '[column-rule-style:outset]', 'initial': '[column-rule-style:initial]'
     }
   ],
   [
     'column-rule-width',
-    {
-
-    }
+    val => ((isUnit(val) ? `[column-rule-width:${val}]` : ''))
   ],
   [
     'column-span',
-    {
-
-    }
+    val => (`[column-span:${getCustomVal(val)}]`)
   ],
   [
     'column-width',
-    {
-
-    }
+    val => ((isUnit(val) ? `[column-width:${val}]` : ''))
   ],
   [
     'columns',
-    {
-
-    }
+    val => (`[columns:${getCustomVal(val)}]`)
   ],
   [
     'contain-intrinsic-size',
-    {
-
-    }
+    val => (`[contain-intrinsic-size:${getCustomVal(val)}]`)
   ],
   [
     'content',
@@ -770,57 +749,47 @@ const propertyMap: Map<string, Record<string, string> | ((val: string) => string
   ],
   [
     'content-visibility',
-    {
-
-    }
+    val => (`[content-visibility:${getCustomVal(val)}]`)
   ],
   [
     'counter-increment',
-    {
-
-    }
+    val => (`[content-increment:${getCustomVal(val)}]`)
   ],
   [
     'counter-reset',
-    {
-
-    }
+    val => (`[counter-reset:${getCustomVal(val)}]`)
   ],
   [
     'counter-set',
-    {
-
-    }
+    val => (`[counter-set:${getCustomVal(val)}]`)
   ],
   [
     'cursor',
     {
-
+      'auto': 'cursor-auto', 'default': 'cursor-default', 'pointer': 'cursor-pointer', 'wait': 'cursor-wait', 'text': 'cursor-text', 'move': 'cursor-move', 'help': 'cursor-help', 'not-allowed': 'cursor-not-allowed'
     }
   ],
   [
     'direction',
     {
-
+      'ltr': '[direction:ltr]', 'rtl': '[direction:rtl]', 'inherit': '[direction:inherit]', 'initial': '[direction:initial]'
     }
   ],
   [
     'display',
     {
-
+      'block': 'block', 'inline-block': 'inline-block', 'inline': 'inline', 'flex': 'flex', 'inline-flex': 'inline-flex', 'table': 'table', 'inline-table': 'inline-table', 'table-caption': 'table-caption', 'table-cell': 'table-cell', 'table-column': 'table-column', 'table-column-group': 'table-column-group', 'table-footer-group': 'table-footer-group', 'table-header-group': 'table-header-group', 'table-row-group': 'table-row-group', 'table-row': 'table-row', 'flow-root': 'flow-root', 'grid': 'grid', 'inline-grid': 'inline-grid', 'contents': 'contents', 'list-item': 'list-item', 'none': 'hidden'
     }
   ],
   [
     'empty-cells',
     {
-
+      'hide': '[empty-cells:hide]', 'show': '[empty-cells:show]', 'inherit': '[empty-cells:inherit]', 'initial': '[empty-cells:initial]'
     }
   ],
   [
     'fill',
-    {
-
-    }
+    val => ({ 'currentColor': 'fill-current', 'currentcolor': 'fill-current' }[val] ?? (isColor(val, true) ? `fill-[${getCustomVal(val)}]` : ''))
   ],
   [
     'filter',
@@ -830,63 +799,49 @@ const propertyMap: Map<string, Record<string, string> | ((val: string) => string
   ],
   [
     'flex',
-    {
-
-    }
+    val => ({ '1 1 0%': 'flex-1', '1 1 auto': 'flex-auto', '0 1 auto': 'flex-initial', 'none': 'flex-none' }[val] ?? `flex-[${getCustomVal(val)}]`)
   ],
   [
     'flex-basis',
-    {
-
-    }
+    val => ((isUnit(val) ? `[flex-basis:${val}]` : ''))
   ],
   [
     'flex-direction',
     {
-
+      'row': 'flex-row', 'row-reverse': 'flex-row-reverse', 'column': 'flex-col', 'column-reverse': 'flex-col-reverse'
     }
   ],
   [
     'flex-flow',
-    {
-
-    }
+    val => (`[flex-flow:${getCustomVal(val)}]`)
   ],
   [
     'flex-grow',
-    {
-
-    }
+    val => ((isUnit(val) ? ({ '0': 'flex-grow-0', '1': 'flex-grow' }[val] ?? `flex-grow-[${val}]`) : ''))
   ],
   [
     'flex-shrink',
-    {
-
-    }
+    val => ((isUnit(val) ? ({ '0': 'flex-shrink-0', '1': 'flex-shrink' }[val] ?? `flex-shrink-[${val}]`) : ''))
   ],
   [
     'flex-wrap',
     {
-
+      'wrap': 'flex-wrap', 'wrap-reverse': 'flex-wrap-reverse', 'nowrap': 'flex-nowrap'
     }
   ],
   [
     'float',
     {
-
+      'right': 'float-right', 'left': 'float-left', 'none': 'float-none'
     }
   ],
   [
     'font',
-    {
-
-    }
+    val => (`[font:${getCustomVal(val)}]`)
   ],
   [
     'font-family',
-    {
-
-    }
+    val => (`font-[${getCustomVal(val)}]`)
   ],
   [
     'font-size',
@@ -894,45 +849,51 @@ const propertyMap: Map<string, Record<string, string> | ((val: string) => string
   ],
   [
     'font-size-adjust',
+    val => ((isUnit(val) ? `[font-size-adjust:${val}]` : ''))
+  ],
+  [
+    '-webkit-font-smoothing',
     {
-
+      'antialiased': 'antialiased', 'auto': 'subpixel-antialiased'
+    }
+  ],
+  [
+    '-moz-osx-font-smoothing',
+    {
+      'grayscale': 'antialiased', 'auto': 'subpixel-antialiased'
     }
   ],
   [
     'font-stretch',
     {
-
+      'wider': '[font-stretch:wider]', 'narrower': '[font-stretch:narrower]', 'ultra-condensed': '[font-stretch:ultra-condensed]', 'extra-condensed': '[font-stretch:extra-condensed]', 'condensed': '[font-stretch:condensed]', 'semi-condensed': '[font-stretch:semi-condensed]', 'normal': '[font-stretch:normal]', 'semi-expanded': '[font-stretch:semi-expanded]', 'expanded': '[font-stretch:expanded]', 'extra-expanded': '[font-stretch:extra-expanded]', 'ultra-expanded': '[font-stretch:ultra-expanded]', 'inherit': '[font-stretch:inherit]', 'initial': '[font-stretch:initial]'
     }
   ],
   [
     'font-style',
     {
-
+      'italic': 'italic', 'normal': 'not-italic'
     }
   ],
   [
     'font-variant',
     {
-
+      'normal': '[font-variant:normal]', 'small-caps': '[font-variant:small-caps]', 'inherit': '[font-variant:inherit]', 'initial': '[font-variant:initial]'
     }
   ],
   [
     'font-variant-numeric',
     {
-
+      'normal': 'normal-nums', 'ordinal': 'ordinal', 'slashed-zero': 'slashed-zero', 'lining-nums': 'lining-nums', 'oldstyle-nums': 'oldstyle-nums', 'proportional-nums': 'proportional-nums', 'tabular-nums': 'tabular-nums', 'diagonal-fractions': 'diagonal-fractions', 'stacked-fractions': 'stacked-fractions'
     }
   ],
   [
     'font-variation-settings',
-    {
-
-    }
+    val => (`[font-variation-settings:${getCustomVal(val)}]`)
   ],
   [
     'font-weight',
-    {
-
-    }
+    val => ((isUnit(val) ? `font-[${val}]` : ''))
   ],
   [
     'gap',

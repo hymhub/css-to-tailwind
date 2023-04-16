@@ -1,0 +1,19 @@
+// any val
+val => (`[aaaaaa:${getCustomVal(val)}]`)
+
+// all color
+val => ({ 'transparent': 'aaaaaaa-transparent', 'currentColor': 'aaaaaaa-current', 'currentcolor': 'aaaaaaa-current' }[val] ?? (isColor(val, true) ? `aaaaaaa-[${getCustomVal(val)}]` : ''))
+
+// easy color
+val => (isColor(val, true) ? `[aaaaaa:${getCustomVal(val)}]` : '')
+
+// any Unit
+val => ((isUnit(val) ? `[aaaaa:${val}]` : ''))
+
+
+待办：
+1. before/after --> content https://www.tailwindcss.cn/docs/just-in-time-mode
+2. [initial] [inherit] 全局处理
+3. filter
+
+查找空缺：\s+\{\n\n\s+\}\n
