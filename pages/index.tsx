@@ -10,23 +10,23 @@ import {
   CssToTailwindTranslator,
   specialAttribute
 } from '@/hooks/CssToTailwindTranslator'
-import { copyText, toast } from '@/utils/index'
+import { copyText, getDemoArray, toast } from '@/utils/index'
 
 let windowClick: (() => void) | null
 const ePreventDefault = (e: KeyboardEvent) => {
   e.preventDefault()
 }
 
+const demoArray = getDemoArray(
+  'body {\nmargin: 0;\nbackground-color: #252526;↓\n\n.my-style {\ndisplay: flex;\njustify-content: space-between;\nwidth: 100%;\nheight: 50%;\nbackdrop-filter: blur(5px) contrast(1.2);\nmargin: 8px 16px 12px;↓\n\n@media (min-width: 1536px) {\n.my-media{\ndisplay: grid;\ngrid-auto-flow: row dense;'
+)
+
 export default function Home() {
   const [isDarkTheme, setIsDarkTheme] = useState<boolean>()
   const [resultVals, setResultVals] = useState<ResultCode[]>([])
   const [demoEnded, setDemoEnded] = useState<boolean>(true)
 
-  const demoStringKey = useRef<string[]>(
-    'body {\nmargin: 0;\nbackground-color: #252526;↓\n\n.my-style {\ndisplay: flex;\njustify-content: space-between;\nwidth: 100%;\nheight: 50%;\nbackdrop-filter: blur(5px) contrast(1.2);\nmargin: 8px 16px 12px;↓\n\n@media (min-width: 1536px) {\n.my-media{\ndisplay: grid;\ngrid-auto-flow: row dense;'.split(
-      ''
-    )
-  )
+  const demoStringKey = useRef<string[]>(demoArray)
 
   const [computedResultVals, setComputedResultVals] = useState<
     ComputedResultCode[]
@@ -71,27 +71,6 @@ export default function Home() {
     setComputedResultVals(resVals)
   }, [resultVals])
 
-  // 采用节流缓解 flip 动画问题
-  // const handleChangeHrottleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  // const handleChange = (val: string | undefined, event: any) => {
-  //   if (!handleChangeHrottleTimerRef.current) {
-  //     handleChangeHrottleTimerRef.current = setTimeout(() => {
-  //       const result = CssToTailwindTranslator(val ?? '')
-  //       if (result.code === 'SyntaxError') {
-  //         toast.error(
-  //           `[${specialAttribute.join(', ')}] syntax does not support conversion`,
-  //           {
-  //             toastId: 'SyntaxError'
-  //           }
-  //         )
-  //       }
-  //       setResultVals(result.data)
-  //       handleChangeHrottleTimerRef.current = null
-  //     }, 200)
-  //   }
-  // }
-
-  // 不采用节流，自定义值 flip 动画问题，用节流也只能缓解，目前无解
   const handleChange = (val: string | undefined, event: any) => {
     const result = CssToTailwindTranslator(val ?? '')
     if (result.code === 'SyntaxError') {
@@ -123,7 +102,7 @@ export default function Home() {
     }
 
     window.requestAnimationFrame(() => {
-      if (Date.now() - startTimeRef.current >= 16) {
+      if (Date.now() - startTimeRef.current >= 50) {
         startTimeRef.current = Date.now()
         const nextStr = demoStringKey.current.shift()
         if (nextStr === '↓') {
@@ -210,19 +189,19 @@ export default function Home() {
             {computedResultVals.map((it) => (
               <div key={it.id}>
                 <button
-                  className="dark:bg-[#41454e] bg-[#eeeeee] [border:2px_solid_#e7e7e7] dark:[border:2px_solid_#1e1e1e] p-[8px_16px] font-bold text-[18px] cursor-pointer filter hover:brightness-105 active:enabled:brightness-95"
+                  className="dark:bg-[#41454e] bg-[#f6f6f7] [border:1px_solid_rgba(60,60,67,.29)] dark:[border:1px_solid_#1e1e1e] p-[8px_16px] font-bold text-[18px] cursor-pointer filter hover:brightness-105 active:enabled:brightness-95 rounded-[4px]"
                   onClick={() => {
                     copyText(it.resultVal.map(v => v.val).join(' '))
                   }}
                 >
                   Copy {it.selectorName} Result Code
                 </button>
-                <p className="text-[18px] leading-[30px] my-[16px]">
+                <p className="text-[18px] leading-[30px] mb-[16px] mt-[8px]">
                   <span className="font-bold block mb-[8px]">
                     {it.selectorName} Result Code:{' '}
                   </span>
                   <FlipMove
-                    className="dark:bg-[#1e1e1e] bg-[#e8e8e8] dark:text-[#b5cea8] text-[#098658] pt-[6px] pr-[10px] pl-[2px] inline-flex flex-wrap"
+                    className="dark:bg-[#1e1e1e] bg-[#e8e8e8] dark:text-[#b5cea8] text-[#098658] rounded-[2px] pt-[6px] pr-[10px] pl-[2px] inline-flex flex-wrap"
                     typeName="span"
                     enterAnimation="accordionHorizontal"
                     leaveAnimation="accordionHorizontal"

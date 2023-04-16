@@ -90,3 +90,18 @@ export const copyText = (str: string) => {
   fakeElement.click()
   document.body.removeChild(fakeElement)
 }
+
+export const getDemoArray = (str: string) => {
+  const attributeVals: string[] = []
+  str = str.replace(/:\s*(([^\s^;^{]+\s*)+);/g, (v, $1: string, $2) => {
+    attributeVals.push($1)
+    return v.replace($1, '---')
+  })
+  const demoArray: string[] = []
+  str.split('---').map(v => v.split('')).forEach(it => {
+    demoArray.push(...it)
+    const val = attributeVals.shift()
+    !!val && demoArray.push(val)
+  })
+  return demoArray
+}
