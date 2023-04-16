@@ -1,6 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // reactStrictMode: false,
+  basePath: 'css-to-tailwind',
+  assetPrefix: `/css-to-tailwind/`,
   webpack(config) {
     config.module.rules.push({
       test: /\.svg$/i,
