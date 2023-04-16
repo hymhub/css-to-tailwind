@@ -93,7 +93,7 @@ export const copyText = (str: string) => {
 
 export const getDemoArray = (str: string) => {
   const attributeVals: string[] = []
-  str = str.replace(/:\s*(([^\s^;^{]+\s*)+);/g, (v, $1: string, $2) => {
+  str = str.replace(/:\s*(([^\s^;^{]+\s*)+);/g, (v, $1: string) => {
     attributeVals.push($1)
     return v.replace($1, '---')
   })

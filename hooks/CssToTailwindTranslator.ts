@@ -26,7 +26,176 @@ const getCustomVal = (val: string) => {
   }
   return val
 }
-const propertyMap = new Map<string, Record<string, string> | ((val: string) => string)>([
+const isColor = (str: string, joinLinearGradient = false) => {
+  const namedColors = [
+    'initial',
+    'inherit',
+    'currentColor',
+    'currentcolor',
+    'transparent',
+    'aliceblue',
+    'antiquewhite',
+    'aqua',
+    'aquamarine',
+    'azure',
+    'beige',
+    'bisque',
+    'black',
+    'blanchedalmond',
+    'blue',
+    'blueviolet',
+    'brown',
+    'burlywood',
+    'cadetblue',
+    'chartreuse',
+    'chocolate',
+    'coral',
+    'cornflowerblue',
+    'cornsilk',
+    'crimson',
+    'cyan',
+    'darkblue',
+    'darkcyan',
+    'darkgoldenrod',
+    'darkgray',
+    'darkgrey',
+    'darkgreen',
+    'darkkhaki',
+    'darkmagenta',
+    'darkolivegreen',
+    'darkorange',
+    'darkorchid',
+    'darkred',
+    'darksalmon',
+    'darkseagreen',
+    'darkslateblue',
+    'darkslategray',
+    'darkslategrey',
+    'darkturquoise',
+    'darkviolet',
+    'deeppink',
+    'deepskyblue',
+    'dimgray',
+    'dimgrey',
+    'dodgerblue',
+    'firebrick',
+    'floralwhite',
+    'forestgreen',
+    'fuchsia',
+    'gainsboro',
+    'ghostwhite',
+    'gold',
+    'goldenrod',
+    'gray',
+    'grey',
+    'green',
+    'greenyellow',
+    'honeydew',
+    'hotpink',
+    'indianred',
+    'indigo',
+    'ivory',
+    'khaki',
+    'lavender',
+    'lavenderblush',
+    'lawngreen',
+    'lemonchiffon',
+    'lightblue',
+    'lightcoral',
+    'lightcyan',
+    'lightgoldenrodyellow',
+    'lightgray',
+    'lightgrey',
+    'lightgreen',
+    'lightpink',
+    'lightsalmon',
+    'lightseagreen',
+    'lightskyblue',
+    'lightslategray',
+    'lightslategrey',
+    'lightsteelblue',
+    'lightyellow',
+    'lime',
+    'limegreen',
+    'linen',
+    'magenta',
+    'maroon',
+    'mediumaquamarine',
+    'mediumblue',
+    'mediumorchid',
+    'mediumpurple',
+    'mediumseagreen',
+    'mediumslateblue',
+    'mediumspringgreen',
+    'mediumturquoise',
+    'mediumvioletred',
+    'midnightblue',
+    'mintcream',
+    'mistyrose',
+    'moccasin',
+    'navajowhite',
+    'navy',
+    'oldlace',
+    'olive',
+    'olivedrab',
+    'orange',
+    'orangered',
+    'orchid',
+    'palegoldenrod',
+    'palegreen',
+    'paleturquoise',
+    'palevioletred',
+    'papayawhip',
+    'peachpuff',
+    'peru',
+    'pink',
+    'plum',
+    'powderblue',
+    'purple',
+    'rebeccapurple',
+    'red',
+    'rosybrown',
+    'royalblue',
+    'saddlebrown',
+    'salmon',
+    'sandybrown',
+    'seagreen',
+    'seashell',
+    'sienna',
+    'silver',
+    'skyblue',
+    'slateblue',
+    'slategray',
+    'slategrey',
+    'snow',
+    'springgreen',
+    'steelblue',
+    'tan',
+    'teal',
+    'thistle',
+    'tomato',
+    'turquoise',
+    'violet',
+    'wheat',
+    'white',
+    'whitesmoke',
+    'yellow',
+    'yellowgreen'
+  ]
+  const regexp = /^\s*#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})\s*$|^\s*rgb\(\s*(\d{1,3}|[a-z]+)\s*,\s*(\d{1,3}|[a-z]+)\s*,\s*(\d{1,3}|[a-z]+)\s*\)\s*$|^\s*rgba\(\s*(\d{1,3}|[a-z]+)\s*,\s*(\d{1,3}|[a-z]+)\s*,\s*(\d{1,3}|[a-z]+)\s*,\s*(\d*(\.\d+)?)\s*\)\s*$|^\s*hsl\(\s*(\d+)\s*,\s*(\d*(\.\d+)?%)\s*,\s*(\d*(\.\d+)?%)\)\s*$|^\s*hsla\((\d+)\s*,\s*([\d.]+)%\s*,\s*([\d.]+)%\s*,\s*(\d*(\.\d+)?)\)\s*$/i
+  return regexp.test(str) || namedColors.includes(str) || (joinLinearGradient && /^\s*linear-gradient\([\w\W]+?\)\s*$/.test(str))
+}
+
+const isUnit = (str: string) => {
+  return [
+    'em', 'ex', 'ch', 'rem', 'vw', 'vh', 'vmin', 'vmax',
+    'cm', 'mm', 'in', 'pt', 'pc', 'px',
+    'deg', 'grad', 'rad', 'turn',
+    '%', 'length', 'inherit', 'thick', 'medium', 'thin', 'initial'
+  ].includes(str.replace(/[\d\s]/g, '')) || /^[.\d]+$/.test(str.trim())
+}
+
+const propertyMap: Map<string, Record<string, string> | ((val: string) => string)> = new Map<string, Record<string, string> | ((val: string) => string)>([
   [
     'align-content',
     {
@@ -133,266 +302,259 @@ const propertyMap = new Map<string, Record<string, string> | ((val: string) => s
   [
     'backface-visibility',
     {
-
+      'visible': '[backface-visibility:visible]',
+      'hidden': '[backface-visibility:hidden]'
     }
   ],
   [
     'background',
-    {
-
+    val => {
+      const legalConfig: Record<string, string> = {
+        ...propertyMap.get('background-attachment'),
+        ...propertyMap.get('background-repeat'),
+        'transparent': 'bg-transparent', 'currentColor': 'bg-current', 'currentcolor': 'bg-current', 'none': 'bg-none',
+        'bottom': 'bg-bottom', 'center': 'bg-center', 'left': 'bg-left', 'left bottom': 'bg-left-bottom', 'left top': 'bg-left-top', 'right': 'bg-right', 'right bottom': 'bg-right-bottom', 'right top': 'bg-right-top', 'top': 'bg-top', 'auto': 'bg-auto', 'cover': 'bg-cover', 'contain': 'bg-contain'
+      }
+      return legalConfig[val] ?? `bg-[${getCustomVal(val)}]`
     }
   ],
   [
     'background-attachment',
     {
-
+      'fixed': 'bg-fixed', 'local': 'bg-local', 'scroll': 'bg-scroll'
     }
   ],
   [
     'background-blend-mode',
     {
-
+      'normal': 'bg-blend-normal', 'multiply': 'bg-blend-multiply', 'screen': 'bg-blend-screen', 'overlay': 'bg-blend-overlay', 'darken': 'bg-blend-darken', 'lighten': 'bg-blend-lighten', 'color-dodge': 'bg-blend-color-dodge', 'color-burn': 'bg-blend-color-burn', 'hard-light': 'bg-blend-hard-light', 'soft-light': 'bg-blend-soft-light', 'difference': 'bg-blend-difference', 'exclusion': 'bg-blend-exclusion', 'hue': 'bg-blend-hue', 'saturation': 'bg-blend-saturation', 'color': 'bg-blend-color', 'luminosity': 'bg-blend-luminosity'
     }
   ],
   [
     'background-clip',
     {
-
+      'border-box': 'bg-clip-border', 'padding-box': 'bg-clip-padding', 'content-box': 'bg-clip-content', 'text': 'bg-clip-text'
     }
   ],
   [
     'background-color',
-    {
-
-    }
+    val => ({ 'transparent': 'bg-transparent', 'currentColor': 'bg-current', 'currentcolor': 'bg-current' }[val] ?? (isColor(val, true) ? `bg-[${getCustomVal(val)}]` : ''))
   ],
   [
     'background-image',
-    {
-
-    }
+    val => ({ 'none': 'bg-none' }[val] ?? `bg-[${getCustomVal(val)}]`)
   ],
   [
     'background-origin',
     {
-
+      'border-box': 'bg-origin-border', 'padding-box': 'bg-origin-padding', 'content-box': 'bg-origin-content'
     }
   ],
   [
     'background-position',
-    {
-
-    }
+    val => ({
+      'bottom': 'bg-bottom', 'center': 'bg-center', 'left': 'bg-left', 'left bottom': 'bg-left-bottom', 'left top': 'bg-left-top', 'right': 'bg-right', 'right bottom': 'bg-right-bottom', 'right top': 'bg-right-top', 'top': 'bg-top'
+    }[val] ?? `bg-[${getCustomVal(val)}]`)
   ],
   [
     'background-repeat',
     {
-
+      'repeat': 'bg-repeat', 'no-repeat': 'bg-no-repeat', 'repeat-x': 'bg-repeat-x', 'repeat-y': 'bg-repeat-y', 'round': 'bg-repeat-round', 'space': 'bg-repeat-space'
     }
   ],
   [
     'background-size',
-    {
-
-    }
+    val => ({
+      'auto': 'bg-auto', 'cover': 'bg-cover', 'contain': 'bg-contain'
+    }[val] ?? `[background-size:${getCustomVal(val)}]`)
   ],
   [
     'border',
-    {
-
+    val => {
+      val = val.replace(/\(.+?\)/, v => v.replace(/\s/g, ''))
+      const vals: string = val.split(' ').filter(v => v !== '').map(v => (isUnit(v) || isColor(v)) ? `border-[${v}]` : ((propertyMap.get('border-style') as Record<string, string>)[v] ?? '')).filter(v => v !== '').join(' ')
+      return vals
     }
   ],
   [
     'border-bottom',
-    {
-
+    val => {
+      if (isUnit(val)) {
+        return `border-b-[${getCustomVal(val)}]`
+      } else {
+        return `[border-bottom:${getCustomVal(val)}]`
+      }
     }
   ],
   [
     'border-bottom-color',
-    {
-
-    }
+    val => (isColor(val, true) ? `[border-bottom-color:${getCustomVal(val)}]` : '')
   ],
   [
     'border-bottom-left-radius',
-    {
-
-    }
+    val => ({ '0': 'rounded-bl-none', '0px': 'rounded-bl-none' }[val] ?? (isUnit(val) ? `rounded-bl-[${getCustomVal(val)}]` : ''))
   ],
   [
     'border-bottom-right-radius',
-    {
-
-    }
+    val => ({ '0': 'rounded-br-none', '0px': 'rounded-br-none' }[val] ?? (isUnit(val) ? `rounded-br-[${getCustomVal(val)}]` : ''))
   ],
   [
     'border-bottom-style',
-    {
-
-    }
+    val => ((propertyMap.get('border-style') as Record<string, string>)[val] ? `[border-bottom-style:${val}]` : '')
   ],
   [
     'border-bottom-width',
-    {
-
-    }
+    val => ((isUnit(val) ? `border-b-[${getCustomVal(val)}]` : ''))
   ],
   [
     'border-collapse',
     {
-
+      'collapse': 'border-collapse', 'separate': 'border-separate'
     }
   ],
   [
     'border-color',
-    {
-
-    }
+    val => ({
+      'transparent': 'border-transparent', 'currentColor': 'border-current', 'currentcolor': 'border-current'
+    }[val] ?? (isColor(val) ? `border-[${getCustomVal(val)}]` : ''))
   ],
   [
     'border-image',
-    {
-
-    }
+    val => (`[border-image:${getCustomVal(val)}]`)
   ],
   [
     'border-image-outset',
-    {
-
-    }
+    val => (`[border-image-outset:${getCustomVal(val)}]`)
   ],
   [
     'border-image-repeat',
-    {
-
-    }
+    val => (`[border-image-repeat:${getCustomVal(val)}]`)
   ],
   [
     'border-image-slice',
-    {
-
-    }
+    val => (`[border-image-slice:${getCustomVal(val)}]`)
   ],
   [
     'border-image-source',
-    {
-
-    }
+    val => (`[border-image-source:${getCustomVal(val)}]`)
   ],
   [
     'border-image-width',
-    {
-
-    }
+    val => (isUnit(val) ? `[border-image-width:${getCustomVal(val)}]` : '')
   ],
   [
     'border-left',
-    {
-
+    val => {
+      if (isUnit(val)) {
+        return `border-l-[${getCustomVal(val)}]`
+      } else {
+        return `[border-left:${getCustomVal(val)}]`
+      }
     }
   ],
   [
     'border-left-color',
-    {
-
-    }
+    val => (isColor(val, true) ? `[border-left-color:${getCustomVal(val)}]` : '')
   ],
   [
     'border-left-style',
-    {
-
-    }
+    val => ((propertyMap.get('border-style') as Record<string, string>)[val] ? `[border-left-style:${val}]` : '')
   ],
   [
     'border-left-width',
-    {
-
-    }
+    val => ((isUnit(val) ? `border-l-[${getCustomVal(val)}]` : ''))
   ],
   [
     'border-radius',
-    {
-
+    val => {
+      const r = ({ '0': 'rounded-none', '0px': 'rounded-none' }[val])
+      if (r) {
+        return r
+      }
+      if (val.includes('/')) {
+        return `rounded-${getCustomVal(val)}`
+      }
+      const vals = val.split(' ').filter(v => v !== '')
+      if (vals.filter(v => !isUnit(v)).length > 0) {
+        return ''
+      }
+      if (vals.length === 1) {
+        return `rounded-${vals[0]}`
+      } else if (vals.length === 2) {
+        return `rounded-tl-${vals[0]} rounded-br-${vals[0]} rounded-tr-${vals[1]} rounded-bl-${vals[1]}`
+      } else if (vals.length === 3) {
+        return `rounded-tl-${vals[0]} rounded-br-${vals[2]} rounded-tr-${vals[1]} rounded-bl-${vals[1]}`
+      } else if (vals.length === 4) {
+        return `rounded-tl-${vals[0]} rounded-br-${vals[2]} rounded-tr-${vals[1]} rounded-bl-${vals[3]}`
+      }
+      return ''
     }
   ],
   [
     'border-right',
-    {
-
+    val => {
+      if (isUnit(val)) {
+        return `border-r-[${getCustomVal(val)}]`
+      } else {
+        return `[border-right:${getCustomVal(val)}]`
+      }
     }
   ],
   [
     'border-right-color',
-    {
-
-    }
+    val => (isColor(val, true) ? `[border-right-color:${getCustomVal(val)}]` : '')
   ],
   [
     'border-right-style',
-    {
-
-    }
+    val => ((propertyMap.get('border-style') as Record<string, string>)[val] ? `[border-right-style:${val}]` : '')
   ],
   [
     'border-right-width',
-    {
-
-    }
+    val => ((isUnit(val) ? `border-r-[${getCustomVal(val)}]` : ''))
   ],
   [
     'border-spacing',
-    {
-
-    }
+    val => ((isUnit(val) ? `[border-spacing:${getCustomVal(val)}]` : ''))
   ],
   [
     'border-style',
     {
-
+      'solid': 'border-solid', 'dashed': 'border-dashed', 'dotted': 'border-dotted', 'double': 'border-double', 'none': 'border-none'
     }
   ],
   [
     'border-top',
-    {
-
+    val => {
+      if (isUnit(val)) {
+        return `border-t-[${getCustomVal(val)}]`
+      } else {
+        return `[border-top:${getCustomVal(val)}]`
+      }
     }
   ],
   [
     'border-top-color',
-    {
-
-    }
+    val => (isColor(val, true) ? `[border-top-color:${getCustomVal(val)}]` : '')
   ],
   [
     'border-top-left-radius',
-    {
-
-    }
+    val => ({ '0': 'rounded-tl-none', '0px': 'rounded-tl-none' }[val] ?? (isUnit(val) ? `rounded-tl-[${getCustomVal(val)}]` : ''))
   ],
   [
     'border-top-right-radius',
-    {
-
-    }
+    val => ({ '0': 'rounded-tr-none', '0px': 'rounded-tr-none' }[val] ?? (isUnit(val) ? `rounded-tr-[${getCustomVal(val)}]` : ''))
   ],
   [
     'border-top-style',
-    {
-
-    }
+    val => ((propertyMap.get('border-style') as Record<string, string>)[val] ? `[border-top-style:${val}]` : '')
   ],
   [
     'border-top-width',
-    {
-
-    }
+    val => ((isUnit(val) ? `border-t-[${getCustomVal(val)}]` : ''))
   ],
   [
     'border-width',
-    {
-
-    }
+    val => ((isUnit(val) ? `border-[${getCustomVal(val)}]` : ''))
   ],
   [
     'bottom',
@@ -1733,7 +1895,28 @@ export const CssToTailwindTranslator = (code: string): {
           // console.log('===val=====')
           // console.log(val)
           // console.log('val========')
-          return typeof pipe === 'function' ? pipe(val) : (pipe?.[val] ?? '')
+          let hasImportant = false
+          if (val.includes('!important')) {
+            val = val.replace('!important', '').trim()
+            hasImportant = true
+          }
+          let pipeVal = typeof pipe === 'function' ? pipe(val) : (pipe?.[val] ?? '')
+          if (hasImportant) {
+            const getImportantVal = (v: string) => {
+              if (v[0] === '[' && v[v.length - 1] === ']') {
+                v = `${v.slice(0, -1)}!important]`
+              } else {
+                v = `!${v}`
+              }
+              return v
+            }
+            if (pipeVal.includes(' ')) {
+              pipeVal = pipeVal.split(' ').map(v => getImportantVal(v)).join(' ')
+            } else if (pipeVal.length > 0) {
+              pipeVal = getImportantVal(pipeVal)
+            }
+          }
+          return pipeVal
         }).filter(v => v !== '')
         return {
           selectorName: it.selectorName,

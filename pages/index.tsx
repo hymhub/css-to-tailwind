@@ -18,7 +18,7 @@ const ePreventDefault = (e: KeyboardEvent) => {
 }
 
 const demoArray = getDemoArray(
-  'body {\nmargin: 0;\nbackground-color: #252526;↓\n\n.my-style {\ndisplay: flex;\njustify-content: space-between;\nwidth: 100%;\nheight: 50%;\nbackdrop-filter: blur(5px) contrast(1.2);\nmargin: 8px 16px 12px;↓\n\n@media (min-width: 1536px) {\n.my-media{\ndisplay: grid;\ngrid-auto-flow: row dense;'
+  'body {\nmargin: 0 !important;\nbackground-color: transparent;↓\n\n.my-style {\nwidth: 100%;\nheight: 50%;\nmargin: 8px 16px 12px;\ndisplay: flex;\njustify-content: space-between;\nbackdrop-filter: blur(5px) contrast(1.2);↓\n\n@media (min-width: 1536px) {\n.my-media{\ndisplay: grid;\ngrid-auto-flow: row dense;'
 )
 
 export default function Home() {
