@@ -1,6 +1,5 @@
 import Editor from '@monaco-editor/react'
 import clsx from 'clsx'
-import Image from 'next/image'
 import { useEffect, useRef, useState } from 'react'
 import FlipMove from 'react-flip-move'
 import SimpleBar from 'simplebar-react'
@@ -51,7 +50,7 @@ export default function Home() {
               ? computedResultVals[index].id
               : uuidv4(),
           selectorName: it.selectorName,
-          resultVal: it.resultVal.split(' ').map((v, idx) => {
+          resultVal: it.resultVal.split(' ').map((v) => {
             const oldId = computedResultVals[index]?.resultVal.find((c) => {
               const findRes = resVals[index]?.resultVal.findIndex(
                 (v) => v.id === c.id

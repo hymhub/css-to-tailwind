@@ -1,5 +1,22 @@
 import Clipboard from 'clipboard'
-import { cssTransition, toast as toastify, ToastOptions } from 'react-toastify'
+import { cssTransition, Id, toast as toastify, ToastOptions } from 'react-toastify'
+
+const toastQueue: Id[] = []
+
+toastify.onChange(t => {
+  if (t.status === 'added') {
+    toastQueue.push(t.id)
+    if (toastQueue.length > 3) {
+      toastify.dismiss(toastQueue.shift())
+    }
+  }
+  if (t.status === 'removed') {
+    const idIdx = toastQueue.findIndex(v => v === t.id)
+    if (idIdx !== -1) {
+      toastQueue.splice(idIdx, 1)
+    }
+  }
+})
 
 export const toast = {
   success: (msg: string, opts?: ToastOptions) => {
@@ -10,6 +27,7 @@ export const toast = {
       closeOnClick: true,
       pauseOnHover: false,
       draggable: true,
+      pauseOnFocusLoss: false,
       progress: undefined,
       theme: localStorage.theme === 'dark' ? 'dark' : 'light',
       transition: cssTransition({
@@ -28,6 +46,7 @@ export const toast = {
       closeOnClick: true,
       pauseOnHover: false,
       draggable: true,
+      pauseOnFocusLoss: false,
       progress: undefined,
       theme: localStorage.theme === 'dark' ? 'dark' : 'light',
       ...opts
@@ -41,6 +60,7 @@ export const toast = {
       closeOnClick: true,
       pauseOnHover: false,
       draggable: true,
+      pauseOnFocusLoss: false,
       progress: undefined,
       theme: localStorage.theme === 'dark' ? 'dark' : 'light',
       ...opts

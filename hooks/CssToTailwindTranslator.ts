@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react'
 // ['@media', ''],
 // JSON.stringify(Array.from(document.getElementsByTagName('tbody')[0].children).map(el => ({
 //   [el.children[1].innerHTML.split(':')[1].trim().slice(0, -1)]: el.children[0].innerHTML
