@@ -191,8 +191,45 @@ const isUnit = (str: string) => {
     'em', 'ex', 'ch', 'rem', 'vw', 'vh', 'vmin', 'vmax',
     'cm', 'mm', 'in', 'pt', 'pc', 'px',
     'deg', 'grad', 'rad', 'turn',
-    '%', 'length', 'inherit', 'thick', 'medium', 'thin', 'initial'
-  ].includes(str.replace(/[\d\s]/g, '')) || /^[.\d]+$/.test(str.trim())
+    '%', 'length', 'inherit', 'thick', 'medium', 'thin', 'initial', 'auto'
+  ].includes(str.replace(/[.\d\s-]/g, '')) || /^[-.\d]+$/.test(str.trim())
+}
+
+enum CustomSelect {
+  auto = 'auto',
+  screen = '100vw',
+}
+
+const getUnitMetacharactersVal = (val: string, excludes: CustomSelect[] = []): string | undefined => {
+  if (/^\d+\.\d+%$/.test(val)) {
+    val = `${Number(val.slice(0, -1)).toFixed(6).replace(/(\.\d{2})\d+/, '$1')}%`
+  }
+  const config: Record<string, string> = {
+    'auto': 'auto',
+    '50%': '1/2',
+    '33.33%': '1/3',
+    '66.66%': '2/3',
+    '25%': '1/4',
+    '75%': '3/4',
+    '20%': '1/5',
+    '40%': '2/5',
+    '60%': '3/5',
+    '80%': '4/5',
+    '16.66%': '1/6',
+    '83.33%': '5/6',
+    '8.33%': '1/12',
+    '41.66%': '5/12',
+    '58.33%': '7/12',
+    '91.66%': '11/12',
+    '100%': 'full',
+    '100vw': 'screen',
+    'min-content': 'min',
+    'max-content': 'max'
+  }
+  excludes.forEach(key => {
+    delete config[key]
+  })
+  return config[val]
 }
 
 const propertyMap: Map<string, Record<string, string> | ((val: string) => string)> = new Map<string, Record<string, string> | ((val: string) => string)>([
@@ -558,8 +595,9 @@ const propertyMap: Map<string, Record<string, string> | ((val: string) => string
   ],
   [
     'bottom',
-    {
-
+    val => {
+      const t = hasNegative(val)
+      return (isUnit(val) ? `${t[0]}bottom-${getUnitMetacharactersVal(t[1], [CustomSelect.screen]) || `[${t[1]}]`}` : '')
     }
   ],
   [
@@ -852,9 +890,7 @@ const propertyMap: Map<string, Record<string, string> | ((val: string) => string
   ],
   [
     'font-size',
-    {
-
-    }
+    val => ((isUnit(val) ? `text-[${val}]` : ''))
   ],
   [
     'font-size-adjust',
@@ -1026,9 +1062,7 @@ const propertyMap: Map<string, Record<string, string> | ((val: string) => string
   ],
   [
     'height',
-    {
-
-    }
+    val => (isUnit(val) ? `h-${getUnitMetacharactersVal(val, [CustomSelect.screen]) || `[${val}]`}` : '')
   ],
   [
     'icon',
@@ -1062,8 +1096,9 @@ const propertyMap: Map<string, Record<string, string> | ((val: string) => string
   ],
   [
     'left',
-    {
-
+    val => {
+      const t = hasNegative(val)
+      return (isUnit(val) ? `${t[0]}left-${getUnitMetacharactersVal(t[1], [CustomSelect.screen]) || `[${t[1]}]`}` : '')
     }
   ],
   [
@@ -1122,26 +1157,30 @@ const propertyMap: Map<string, Record<string, string> | ((val: string) => string
   ],
   [
     'margin-bottom',
-    {
-
+    val => {
+      const t = hasNegative(val)
+      return (isUnit(val) ? `${t[0]}mb-[${t[1]}]` : '')
     }
   ],
   [
     'margin-left',
-    {
-
+    val => {
+      const t = hasNegative(val)
+      return (isUnit(val) ? `${t[0]}ml-[${t[1]}]` : '')
     }
   ],
   [
     'margin-right',
-    {
-
+    val => {
+      const t = hasNegative(val)
+      return (isUnit(val) ? `${t[0]}mr-[${t[1]}]` : '')
     }
   ],
   [
     'margin-top',
-    {
-
+    val => {
+      const t = hasNegative(val)
+      return (isUnit(val) ? `${t[0]}mt-[${t[1]}]` : '')
     }
   ],
   [
@@ -1194,27 +1233,19 @@ const propertyMap: Map<string, Record<string, string> | ((val: string) => string
   ],
   [
     'max-height',
-    {
-
-    }
+    val => (isUnit(val) ? `max-h-${getUnitMetacharactersVal(val, [CustomSelect.screen]) || `[${val}]`}` : '')
   ],
   [
     'max-width',
-    {
-
-    }
+    val => (isUnit(val) ? `max-w-${getUnitMetacharactersVal(val, [CustomSelect.screen]) || `[${val}]`}` : '')
   ],
   [
     'min-height',
-    {
-
-    }
+    val => (isUnit(val) ? `min-h-${getUnitMetacharactersVal(val, [CustomSelect.screen]) || `[${val}]`}` : '')
   ],
   [
     'min-width',
-    {
-
-    }
+    val => (isUnit(val) ? `min-w-${getUnitMetacharactersVal(val, [CustomSelect.screen]) || `[${val}]`}` : '')
   ],
   [
     'mix-blend-mode',
@@ -1362,27 +1393,19 @@ const propertyMap: Map<string, Record<string, string> | ((val: string) => string
   ],
   [
     'padding-bottom',
-    {
-
-    }
+    val => ((isUnit(val) ? `pb-[${val}]` : ''))
   ],
   [
     'padding-left',
-    {
-
-    }
+    val => ((isUnit(val) ? `pl-[${val}]` : ''))
   ],
   [
     'padding-right',
-    {
-
-    }
+    val => ((isUnit(val) ? `pr-[${val}]` : ''))
   ],
   [
     'padding-top',
-    {
-
-    }
+    val => ((isUnit(val) ? `pt-[${val}]` : ''))
   ],
   [
     'page-break-after',
@@ -1464,8 +1487,9 @@ const propertyMap: Map<string, Record<string, string> | ((val: string) => string
   ],
   [
     'right',
-    {
-
+    val => {
+      const t = hasNegative(val)
+      return (isUnit(val) ? `${t[0]}right-${getUnitMetacharactersVal(t[1], [CustomSelect.screen]) || `[${t[1]}]`}` : '')
     }
   ],
   [
@@ -1692,8 +1716,9 @@ const propertyMap: Map<string, Record<string, string> | ((val: string) => string
   ],
   [
     'top',
-    {
-
+    val => {
+      const t = hasNegative(val)
+      return (isUnit(val) ? `${t[0]}top-${getUnitMetacharactersVal(t[1], [CustomSelect.screen]) || `[${t[1]}]`}` : '')
     }
   ],
   [
@@ -1776,9 +1801,7 @@ const propertyMap: Map<string, Record<string, string> | ((val: string) => string
   ],
   [
     'width',
-    {
-
-    }
+    val => (isUnit(val) ? `w-${getUnitMetacharactersVal(val, [CustomSelect.screen]) || `[${val}]`}` : '')
   ],
   [
     'word-break',
@@ -1876,9 +1899,6 @@ export const CssToTailwindTranslator = (code: string): {
       if (typeof it.cssCode === 'string') {
         const cssCodeList = it.cssCode.split(';')
         cssCodeList[cssCodeList.length - 1] = cssCodeList[cssCodeList.length - 1].slice(0, -1)
-        // console.log('====================================')
-        // console.log(cssCodeList)
-        // console.log('====================================')
         const resultVals = cssCodeList.map(v => {
           let key = ''
           let val = ''
@@ -1892,9 +1912,6 @@ export const CssToTailwindTranslator = (code: string): {
             }
           }
           const pipe = propertyMap.get(key.trim())
-          // console.log('===val=====')
-          // console.log(val)
-          // console.log('val========')
           let hasImportant = false
           if (val.includes('!important')) {
             val = val.replace('!important', '').trim()
@@ -1915,6 +1932,9 @@ export const CssToTailwindTranslator = (code: string): {
             } else if (pipeVal.length > 0) {
               pipeVal = getImportantVal(pipeVal)
             }
+          }
+          if (it.selectorName.endsWith(':hover') && pipeVal.length > 0) {
+            pipeVal = `hover:${pipeVal}`
           }
           return pipeVal
         }).filter(v => v !== '')
