@@ -18,7 +18,7 @@ const ePreventDefault = (e: KeyboardEvent) => {
 }
 
 const demoArray = getDemoArray(
-  'body {\nmargin: 0 !important;\nbackground-color: transparent;↓\n\n.my-hover:hover {\nbottom: -33.3333%;↓\n\n.my-style {\nwidth: 100%;\nheight: 50%;\nmargin: 8px 16px 12px;\ndisplay: flex;\njustify-content: space-between;\nbackdrop-filter: blur(5px) contrast(1.2);↓\n\n@media (min-width: 1536px) {\n.my-media{\ndisplay: grid;\ngrid-auto-flow: row dense;'
+  'body {\nwidth: 100%;\nheight: 50%;\nmargin: 0 !important;\nbackground-color: transparent;↓\n\n.my-hover:hover {\nbottom: -33.3333%;↓\n\n.my-style {\nmargin: 8px 16px 12px;\ndisplay: flex;\njustify-content: space-between;\nbackdrop-filter: blur(5px) contrast(1.2);↓\n\n@media (min-width: 1536px) {\n.my-media{\ndisplay: grid;\ngrid-auto-flow: row dense;'
 )
 
 export default function Home() {
@@ -157,8 +157,8 @@ export default function Home() {
   }, [isDarkTheme])
 
   return (
-    <div className="2xl:grid 2xl:grid-cols-2 2xl:grid-flow-row-dense h-dom-height max-2xl:overflow-y-auto">
-      <section className='font-[Consolas,_"Courier_New",_monospace] 2xl:col-start-2 relative 2xl:h-full max-2xl:h-1/2 overflow-y-auto text-[#111827] dark:text-[#abb2bf]'>
+    <div className="lgx:grid lgx:grid-cols-2 lgx:grid-flow-row-dense h-dom-height max-lgx:overflow-y-auto">
+      <section className='font-[Consolas,_"Courier_New",_monospace] lgx:col-start-2 relative lgx:h-full max-lgx:h-1/2 overflow-y-auto text-[#111827] dark:text-[#abb2bf]'>
         <button
           onClick={themeChange}
           className="w-[60px] h-[32px] absolute right-[16px] top-[16px] rounded-[16px] border-solid border-[1px] dark:border-[rgba(82,82,89,.68)] dark:bg-[#313136] border-[rgba(60,60,67,.29)] bg-[#eeeeee]"
@@ -176,7 +176,7 @@ export default function Home() {
             )}
           </span>
         </button>
-        <h2 className="m-[16px] 2xl:text-center text-[22px] font-bold h-[32px]">
+        <h2 className="m-[16px] lgx:text-center text-[22px] font-bold h-[32px]">
           Out Code
         </h2>
         <SimpleBar className="h-[calc(100%-64px)] overflow-y-auto px-[16px]">
@@ -224,7 +224,7 @@ export default function Home() {
       </section>
       <section
         ref={editorContainerRef}
-        className="2xl:h-full h-1/2 border-t-[1px] border-solid border-[#d9dce1] dark:border-transparent"
+        className="lgx:h-full h-1/2 border-t-[1px] border-solid border-[#d9dce1] dark:border-transparent"
       >
         <Editor
           language="css"

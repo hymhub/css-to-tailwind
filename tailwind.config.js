@@ -9,6 +9,9 @@ module.exports = {
     extend: {
       height: {
         'dom-height': 'var(--dom-height)'
+      },
+      screens: {
+        'lgx': '1180px'
       }
     }
   },
