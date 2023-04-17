@@ -202,7 +202,8 @@ const isUnit = (str: string) => {
 
 enum CustomSelect {
   auto = 'auto',
-  screen = '100vw',
+  vh = '100vh',
+  vw = '100vw',
 }
 
 const getUnitMetacharactersVal = (val: string, excludes: CustomSelect[] = []): string | undefined => {
@@ -228,6 +229,7 @@ const getUnitMetacharactersVal = (val: string, excludes: CustomSelect[] = []): s
     '91.66%': '11/12',
     '100%': 'full',
     '100vw': 'screen',
+    '100vh': 'screen',
     'min-content': 'min',
     'max-content': 'max'
   }
@@ -514,20 +516,20 @@ const propertyMap: Map<string, Record<string, string> | ((val: string) => string
         return r
       }
       if (val.includes('/')) {
-        return `rounded-${getCustomVal(val)}`
+        return `rounded-[${getCustomVal(val)}]`
       }
       const vals = val.split(' ').filter(v => v !== '')
       if (vals.filter(v => !isUnit(v)).length > 0) {
         return ''
       }
       if (vals.length === 1) {
-        return `rounded-${vals[0]}`
+        return `rounded-[${vals[0]}]`
       } else if (vals.length === 2) {
-        return `rounded-tl-${vals[0]} rounded-br-${vals[0]} rounded-tr-${vals[1]} rounded-bl-${vals[1]}`
+        return `rounded-tl-[${vals[0]}] rounded-br-[${vals[0]}] rounded-tr-[${vals[1]}] rounded-bl-[${vals[1]}]`
       } else if (vals.length === 3) {
-        return `rounded-tl-${vals[0]} rounded-br-${vals[2]} rounded-tr-${vals[1]} rounded-bl-${vals[1]}`
+        return `rounded-tl-[${vals[0]}] rounded-br-[${vals[2]}] rounded-tr-[${vals[1]}] rounded-bl-[${vals[1]}]`
       } else if (vals.length === 4) {
-        return `rounded-tl-${vals[0]} rounded-br-${vals[2]} rounded-tr-${vals[1]} rounded-bl-${vals[3]}`
+        return `rounded-tl-[${vals[0]}] rounded-br-[${vals[2]}] rounded-tr-[${vals[1]}] rounded-bl-[${vals[3]}]`
       }
       return ''
     }
@@ -602,7 +604,7 @@ const propertyMap: Map<string, Record<string, string> | ((val: string) => string
     'bottom',
     val => {
       const t = hasNegative(val)
-      return (isUnit(val) ? `${t[0]}bottom-${getUnitMetacharactersVal(t[1], [CustomSelect.screen]) || `[${t[1]}]`}` : '')
+      return (isUnit(val) ? `${t[0]}bottom-${getUnitMetacharactersVal(t[1], [CustomSelect.vw, CustomSelect.vh]) || `[${t[1]}]`}` : '')
     }
   ],
   [
@@ -705,7 +707,7 @@ const propertyMap: Map<string, Record<string, string> | ((val: string) => string
   ],
   [
     'column-gap',
-    val => (`[column-gap:${getCustomVal(val)}]`)
+    val => ({ '0': 'gap-x-0' }[val] ?? (isUnit(val) ? `gap-x-[${val}]` : ''))
   ],
   [
     'column-rule',
@@ -897,399 +899,425 @@ const propertyMap: Map<string, Record<string, string> | ((val: string) => string
   ],
   [
     'gap',
-    {
-
-    }
+    val => ({ '0': 'gap-0' }[val] ?? (isUnit(val) ? `gap-[${val}]` : ''))
   ],
   [
     'grid',
-    {
-
-    }
+    val => (`[grid:${getCustomVal(val)}]`)
   ],
   [
     'grid-area',
-    {
-
-    }
+    val => (`[grid-area:${getCustomVal(val)}]`)
   ],
   [
     'grid-auto-columns',
-    {
-
-    }
+    val => ({
+      'auto': 'auto-cols-auto', 'min-content': 'auto-cols-min', 'max-content': 'auto-cols-max', 'minmax(0, 1fr)': 'auto-cols-fr'
+    }[val] ?? `auto-cols-[${getCustomVal(val)}]`)
   ],
   [
     'grid-auto-flow',
-    {
-
-    }
+    val => ({
+      'row': 'grid-flow-row', 'column': 'grid-flow-col', 'row_dense': 'grid-flow-row-dense', 'column_dense': 'grid-flow-col-dense'
+    }[getCustomVal(val)] ?? '')
   ],
   [
     'grid-auto-rows',
-    {
-
-    }
+    val => ({
+      'auto': 'auto-rows-auto', 'min-content': 'auto-rows-min', 'max-content': 'auto-rows-max', 'minmax(0, 1fr)': 'auto-rows-fr'
+    }[val] ?? `auto-rows-[${getCustomVal(val)}]`)
   ],
   [
     'grid-column',
-    {
-
-    }
+    val => ({
+      'auto': 'col-auto',
+      'span 1 / span 1': 'col-span-1',
+      'span 2 / span 2': 'col-span-2',
+      'span 3 / span 3': 'col-span-3',
+      'span 4 / span 4': 'col-span-4',
+      'span 5 / span 5': 'col-span-5',
+      'span 6 / span 6': 'col-span-6',
+      'span 7 / span 7': 'col-span-7',
+      'span 8 / span 8': 'col-span-8',
+      'span 9 / span 9': 'col-span-9',
+      'span 10 / span 10': 'col-span-10',
+      'span 11 / span 11': 'col-span-11',
+      'span 12 / span 12': 'col-span-12',
+      '1 / -1': 'col-span-full'
+    }[val] ?? `col-[${getCustomVal(val)}]`)
   ],
   [
     'grid-column-end',
-    {
-
-    }
+    val => ({
+      '1': 'col-end-1',
+      '2': 'col-end-2',
+      '3': 'col-end-3',
+      '4': 'col-end-4',
+      '5': 'col-end-5',
+      '6': 'col-end-6',
+      '7': 'col-end-7',
+      '8': 'col-end-8',
+      '9': 'col-end-9',
+      '10': 'col-end-10',
+      '11': 'col-end-11',
+      '12': 'col-end-12',
+      '13': 'col-end-13',
+      auto: 'col-end-auto'
+    }[val] ?? `col-end-[${getCustomVal(val)}]`)
   ],
   [
     'grid-column-gap',
-    {
-
-    }
+    val => ({ '0': 'gap-x-0' }[val] ?? (isUnit(val) ? `gap-x-[${val}]` : ''))
   ],
   [
     'grid-column-start',
-    {
-
-    }
+    val => ({
+      '1': 'col-start-1',
+      '2': 'col-start-2',
+      '3': 'col-start-3',
+      '4': 'col-start-4',
+      '5': 'col-start-5',
+      '6': 'col-start-6',
+      '7': 'col-start-7',
+      '8': 'col-start-8',
+      '9': 'col-start-9',
+      '10': 'col-start-10',
+      '11': 'col-start-11',
+      '12': 'col-start-12',
+      '13': 'col-start-13',
+      'auto': 'col-start-auto'
+    }[val] ?? `col-start-[${getCustomVal(val)}]`)
   ],
   [
     'grid-gap',
-    {
-
-    }
+    val => ({ '0': 'gap-0' }[val] ?? (isUnit(val) ? `gap-[${val}]` : ''))
   ],
   [
     'grid-row',
-    {
-
-    }
+    val => ({
+      'auto': 'row-auto',
+      'span 1 / span 1': 'row-span-1',
+      'span 2 / span 2': 'row-span-2',
+      'span 3 / span 3': 'row-span-3',
+      'span 4 / span 4': 'row-span-4',
+      'span 5 / span 5': 'row-span-5',
+      'span 6 / span 6': 'row-span-6',
+      '1 / -1': 'row-span-full'
+    }[val] ?? `row-[${getCustomVal(val)}]`)
   ],
   [
     'grid-row-end',
-    {
-
-    }
+    val => ({
+      '1': 'row-end-1',
+      '2': 'row-end-2',
+      '3': 'row-end-3',
+      '4': 'row-end-4',
+      '5': 'row-end-5',
+      '6': 'row-end-6',
+      '7': 'row-end-7',
+      auto: 'row-end-auto'
+    }[val] ?? `row-end-[${getCustomVal(val)}]`)
   ],
   [
     'grid-row-gap',
-    {
-
-    }
+    val => ({ '0': 'gap-y-0' }[val] ?? (isUnit(val) ? `gap-y-[${val}]` : ''))
   ],
   [
     'grid-row-start',
-    {
-
-    }
+    val => ({
+      '1': 'row-start-1',
+      '2': 'row-start-2',
+      '3': 'row-start-3',
+      '4': 'row-start-4',
+      '5': 'row-start-5',
+      '6': 'row-start-6',
+      '7': 'row-start-7',
+      'auto': 'row-start-auto'
+    }[val] ?? `row-start-[${getCustomVal(val)}]`)
   ],
   [
     'grid-rows',
-    {
-
-    }
+    val => (`[grid-rows:${getCustomVal(val)}]`)
   ],
   [
     'grid-template',
-    {
-
-    }
+    val => (`[grid-template:${getCustomVal(val)}]`)
   ],
   [
     'grid-template-areas',
-    {
-
-    }
+    val => (`[grid-template-areas:${getCustomVal(val)}]`)
   ],
   [
     'grid-template-columns',
-    {
-
-    }
+    val => ({
+      'repeat(1,minmax(0,1fr))': 'grid-cols-1', 'repeat(2,minmax(0,1fr))': 'grid-cols-2', 'repeat(3,minmax(0,1fr))': 'grid-cols-3', 'repeat(4,minmax(0,1fr))': 'grid-cols-4', 'repeat(5,minmax(0,1fr))': 'grid-cols-5', 'repeat(6,minmax(0,1fr))': 'grid-cols-6', 'repeat(7,minmax(0,1fr))': 'grid-cols-7', 'repeat(8,minmax(0,1fr))': 'grid-cols-8', 'repeat(9,minmax(0,1fr))': 'grid-cols-9', 'repeat(10,minmax(0,1fr))': 'grid-cols-10', 'repeat(11,minmax(0,1fr))': 'grid-cols-11', 'repeat(12,minmax(0,1fr))': 'grid-cols-12', 'none': 'grid-cols-none'
+    }[getCustomVal(val).replace(/_/g, '')] ?? `grid-cols-[${getCustomVal(val)}]`)
   ],
   [
     'grid-template-rows',
-    {
-
-    }
+    val => ({
+      'repeat(1,minmax(0,1fr))': 'grid-rows-1', 'repeat(2,minmax(0,1fr))': 'grid-rows-2', 'repeat(3,minmax(0,1fr))': 'grid-rows-3', 'repeat(4,minmax(0,1fr))': 'grid-rows-4', 'repeat(5,minmax(0,1fr))': 'grid-rows-5', 'repeat(6,minmax(0,1fr))': 'grid-rows-6', 'none': 'grid-rows-none'
+    }[getCustomVal(val).replace(/_/g, '')] ?? `grid-rows-[${getCustomVal(val)}]`)
   ],
   [
     'hanging-punctuation',
     {
-
+      'none': '[hanging-punctuation:none]', 'first': '[hanging-punctuation:first]', 'last': '[hanging-punctuation:last]', 'allow-end': '[hanging-punctuation:allow-end]', 'force-end': '[hanging-punctuation:force-end]', 'initial': '[hanging-punctuation:initial]'
     }
   ],
   [
     'height',
-    val => (isUnit(val) ? `h-${getUnitMetacharactersVal(val, [CustomSelect.screen]) || `[${val}]`}` : '')
+    val => (isUnit(val) ? `h-${getUnitMetacharactersVal(val, [CustomSelect.vw]) || `[${val}]`}` : '')
   ],
   [
     'icon',
-    {
-
-    }
+    val => (`[icon:${getCustomVal(val)}]`)
   ],
   [
     'image-orientation',
-    {
-
-    }
+    val => (`[image-orientation:${getCustomVal(val)}]`)
   ],
   [
     'justify-content',
     {
-
+      'flex-start': 'justify-start', 'flex-end': 'justify-end', 'center': 'justify-center', 'space-between': 'justify-between', 'space-around': 'justify-around', 'space-evenly': 'justify-evenly'
     }
   ],
   [
     'justify-items',
     {
-
+      'start': 'justify-items-start', 'end': 'justify-items-end', 'center': 'justify-items-center', 'stretch': 'justify-items-stretch'
     }
   ],
   [
     'justify-self',
     {
-
+      'auto': 'justify-self-auto', 'start': 'justify-self-start', 'end': 'justify-self-end', 'center': 'justify-self-center', 'stretch': 'justify-self-stretch'
     }
   ],
   [
     'left',
     val => {
       const t = hasNegative(val)
-      return (isUnit(val) ? `${t[0]}left-${getUnitMetacharactersVal(t[1], [CustomSelect.screen]) || `[${t[1]}]`}` : '')
+      return (isUnit(val) ? `${t[0]}left-${getUnitMetacharactersVal(t[1], [CustomSelect.vw, CustomSelect.vh]) || `[${t[1]}]`}` : '')
     }
   ],
   [
     'letter-spacing',
-    {
-
-    }
+    val => ({ '-0.05em': 'tracking-tighter', '-0.025em': 'tracking-tight', '0em': 'tracking-normal', '0.025em': 'tracking-wide', '0.05em': 'tracking-wider', '0.1em': 'tracking-widest' }[val] ?? (isUnit(val) ? `tracking-[${val}]` : ''))
   ],
   [
     'line-height',
-    {
-
-    }
+    val => ({ '1': 'leading-none', '2': 'leading-loose', '1.25': 'leading-tight', '1.375': 'leading-snug', '1.5': 'leading-normal', '1.625': 'leading-relaxed' }[val] ?? (isUnit(val) ? `leading-[${val}]` : ''))
   ],
   [
     'list-style',
-    {
-
-    }
+    val => (`[list-style:${getCustomVal(val)}]`)
   ],
   [
     'list-style-image',
-    {
-
-    }
+    val => (`[list-style-image:${getCustomVal(val)}]`)
   ],
   [
     'list-style-position',
-    {
-
-    }
+    val => ({
+      'inside': 'list-inside', 'outside': 'list-outside'
+    }[val] ?? `[list-style-position:${getCustomVal(val)}]`)
   ],
   [
     'list-style-type',
-    {
-
-    }
+    val => ({
+      'none': 'list-none', 'disc': 'list-disc', 'decimal': 'list-decimal'
+    }[val] ?? `list-[${getCustomVal(val)}]`)
   ],
   [
     'logical-height',
-    {
-
-    }
+    val => ((isUnit(val) ? `[logical-height:${val}]` : ''))
   ],
   [
     'logical-width',
-    {
-
-    }
+    val => ((isUnit(val) ? `[logical-width:${val}]` : ''))
   ],
   [
     'margin',
-    {
-
+    val => {
+      const getPipeVal = (val: string) => {
+        const r = ({ '0': 'm_0', '0px': 'm_0', 'auto': 'm_auto' }[val])
+        if (r) {
+          return r
+        }
+        const vals = val.split(' ').filter(v => v !== '')
+        if (vals.filter(v => !isUnit(v)).length > 0) {
+          return ''
+        }
+        if (vals.length === 1 || new Set(vals).size === 1) {
+          return `m_[${vals[0]}]`
+        } else if (vals.length === 2) {
+          return `mx_[${vals[1]}] my_[${vals[0]}]`
+        } else if (vals.length === 3) {
+          if (vals[0] === vals[2]) {
+            return `mx_[${vals[1]}] my_[${vals[0]}]`
+          }
+          return `mt_[${vals[0]}] mx_[${vals[1]}] mb_[${vals[2]}]`
+        } else if (vals.length === 4) {
+          if (vals[0] === vals[2]) {
+            if (vals[1] === vals[3]) {
+              return `mx_[${vals[1]}] my_[${vals[0]}]`
+            }
+            return `ml_[${vals[3]}] mr_[${vals[1]}] my_[${vals[0]}]`
+          }
+          if (vals[1] === vals[3]) {
+            if (vals[0] === vals[2]) {
+              return `mx_[${vals[1]}] my_[${vals[0]}]`
+            }
+            return `ml_[${vals[3]}] mr_[${vals[1]}] my_[${vals[0]}]`
+          }
+          return `mt_[${vals[0]}] mr_[${vals[1]}] mb_[${vals[2]}] ml_[${vals[3]}]`
+        }
+        return ''
+      }
+      const v = getPipeVal(val)
+      return v === '' ? '' : (v.split(' ').map(t => t.includes('-') ? `-${t.replace('-', '').replace('_', '-')}` : t.replace('_', '-')).join(' '))
     }
   ],
   [
     'margin-bottom',
     val => {
       const t = hasNegative(val)
-      return (isUnit(val) ? `${t[0]}mb-[${t[1]}]` : '')
+      return { '0': 'mb-0', '0px': 'mb-0', 'auto': 'mb-auto' }[val] ?? (isUnit(val) ? `${t[0]}mb-[${t[1]}]` : '')
     }
   ],
   [
     'margin-left',
     val => {
       const t = hasNegative(val)
-      return (isUnit(val) ? `${t[0]}ml-[${t[1]}]` : '')
+      return { '0': 'ml-0', '0px': 'ml-0', 'auto': 'ml-auto' }[val] ?? (isUnit(val) ? `${t[0]}ml-[${t[1]}]` : '')
     }
   ],
   [
     'margin-right',
     val => {
       const t = hasNegative(val)
-      return (isUnit(val) ? `${t[0]}mr-[${t[1]}]` : '')
+      return { '0': 'mr-0', '0px': 'mr-0', 'auto': 'mr-auto' }[val] ?? (isUnit(val) ? `${t[0]}mr-[${t[1]}]` : '')
     }
   ],
   [
     'margin-top',
     val => {
       const t = hasNegative(val)
-      return (isUnit(val) ? `${t[0]}mt-[${t[1]}]` : '')
+      return { '0': 'mt-0', '0px': 'mt-0', 'auto': 'mt-auto' }[val] ?? (isUnit(val) ? `${t[0]}mt-[${t[1]}]` : '')
     }
   ],
   [
     'mask',
-    {
-
-    }
+    val => (`[mask:${getCustomVal(val)}]`)
   ],
   [
     'mask-clip',
-    {
-
-    }
+    val => (`[mask-clip:${getCustomVal(val)}]`)
   ],
   [
     'mask-composite',
-    {
-
-    }
+    val => (`[mask-composite:${getCustomVal(val)}]`)
   ],
   [
     'mask-image',
-    {
-
-    }
+    val => (`[mask-image:${getCustomVal(val)}]`)
   ],
   [
     'mask-origin',
-    {
-
-    }
+    val => (`[mask-origin:${getCustomVal(val)}]`)
   ],
   [
     'mask-position',
-    {
-
-    }
+    val => (`[mask-position:${getCustomVal(val)}]`)
   ],
   [
     'mask-repeat',
-    {
-
-    }
+    val => (`[mask-repeat:${getCustomVal(val)}]`)
   ],
   [
     'mask-size',
-    {
-
-    }
+    val => (`[mask-size:${getCustomVal(val)}]`)
   ],
   [
     'max-height',
-    val => (isUnit(val) ? `max-h-${getUnitMetacharactersVal(val, [CustomSelect.screen]) || `[${val}]`}` : '')
+    val => (isUnit(val) ? `max-h-${getUnitMetacharactersVal(val, [CustomSelect.vw]) || `[${val}]`}` : '')
   ],
   [
     'max-width',
-    val => (isUnit(val) ? `max-w-${getUnitMetacharactersVal(val, [CustomSelect.screen]) || `[${val}]`}` : '')
+    val => (isUnit(val) ? `max-w-${getUnitMetacharactersVal(val, [CustomSelect.vw, CustomSelect.vh]) || `[${val}]`}` : '')
   ],
   [
     'min-height',
-    val => (isUnit(val) ? `min-h-${getUnitMetacharactersVal(val, [CustomSelect.screen]) || `[${val}]`}` : '')
+    val => (isUnit(val) ? `min-h-${getUnitMetacharactersVal(val, [CustomSelect.vw]) || `[${val}]`}` : '')
   ],
   [
     'min-width',
-    val => (isUnit(val) ? `min-w-${getUnitMetacharactersVal(val, [CustomSelect.screen]) || `[${val}]`}` : '')
+    val => (isUnit(val) ? `min-w-${getUnitMetacharactersVal(val, [CustomSelect.vw, CustomSelect.vh]) || `[${val}]`}` : '')
   ],
   [
     'mix-blend-mode',
     {
-
+      'normal': 'mix-blend-normal', 'multiply': 'mix-blend-multiply', 'screen': 'mix-blend-screen', 'overlay': 'mix-blend-overlay', 'darken': 'mix-blend-darken', 'lighten': 'mix-blend-lighten', 'color-dodge': 'mix-blend-color-dodge', 'color-burn': 'mix-blend-color-burn', 'hard-light': 'mix-blend-hard-light', 'soft-light': 'mix-blend-soft-light', 'difference': 'mix-blend-difference', 'exclusion': 'mix-blend-exclusion', 'hue': 'mix-blend-hue', 'saturation': 'mix-blend-saturation', 'color': 'mix-blend-color', 'luminosity': 'mix-blend-luminosity'
     }
   ],
   [
     'nav-down',
-    {
-
-    }
+    val => (`[nav-down:${getCustomVal(val)}]`)
   ],
   [
     'nav-index',
-    {
-
-    }
+    val => ((isUnit(val) ? `[nav-index:${val}]` : ''))
   ],
   [
     'nav-left',
-    {
-
-    }
+    val => ((isUnit(val) ? `[nav-left:${val}]` : ''))
   ],
   [
     'nav-right',
-    {
-
-    }
+    val => ((isUnit(val) ? `[nav-right:${val}]` : ''))
   ],
   [
     'nav-up',
-    {
-
-    }
+    val => ((isUnit(val) ? `[nav-up:${val}]` : ''))
   ],
   [
     'object-fit',
     {
-
+      'contain': 'object-contain', 'cover': 'object-cover', 'fill': 'object-fill', 'none': 'object-none', 'scale-down': 'object-scale-down'
     }
   ],
   [
     'object-position',
-    {
-
-    }
+    val => ({
+      'bottom': 'object-bottom', 'center': 'object-center', 'left': 'object-left', 'left_bottom': 'object-left-bottom', 'left_top': 'object-left-top', 'right': 'object-right', 'right_bottom': 'object-right-bottom', 'right_top': 'object-right-top', 'top': 'object-top'
+    }[getCustomVal(val)] ?? '')
   ],
   [
     'opacity',
-    {
-
-    }
+    val => ({ '0': 'opacity-0', '1': 'opacity-100', '0.05': 'opacity-5', '0.1': 'opacity-10', '0.2': 'opacity-20', '0.25': 'opacity-25', '0.3': 'opacity-30', '0.4': 'opacity-40', '0.5': 'opacity-50', '0.6': 'opacity-60', '0.7': 'opacity-70', '0.75': 'opacity-75', '0.8': 'opacity-80', '0.9': 'opacity-90', '0.95': 'opacity-95' }[val] ?? (isUnit(val) ? `opacity-[${val}]` : ''))
   ],
   [
     'order',
-    {
-
-    }
+    val => ({ '0': 'order-none', '1': 'order-1', '2': 'order-2', '3': 'order-3', '4': 'order-4', '5': 'order-5', '6': 'order-6', '7': 'order-7', '8': 'order-8', '9': 'order-9', '10': 'order-10', '11': 'order-11', '12': 'order-12', '9999': 'order-last', '-9999': 'order-first' }[val] ?? (isUnit(val) ? `order-[${val}]` : ''))
   ],
   [
     'outline',
-    {
-
-    }
+    val => (`outline-[${getCustomVal(val)}]`)
   ],
   [
     'outline-color',
-    {
-
-    }
+    val => (isColor(val, true) ? `[outline-color:${getCustomVal(val)}]` : '')
   ],
   [
     'outline-offset',
-    {
-
-    }
+    val => ((isUnit(val) ? `[outline-offset:${val}]` : ''))
   ],
   [
     'outline-style',
     {
-
+      'none': '[outline-style:none]', 'dotted': '[outline-style:dotted]', 'dashed': '[outline-style:dashed]', 'solid': '[outline-style:solid]', 'double': '[outline-style:double]', 'groove': '[outline-style:groove]', 'ridge': '[outline-style:ridge]', 'inset': '[outline-style:inset]', 'outset': '[outline-style:outset]', 'inherit': '[outline-style:inherit]', 'initial': '[outline-style:initial]'
     }
   ],
   [
@@ -1348,25 +1376,57 @@ const propertyMap: Map<string, Record<string, string> | ((val: string) => string
   ],
   [
     'padding',
-    {
-
+    val => {
+      const r = ({ '0': 'p-0', '0px': 'p-0' }[val])
+      if (r) {
+        return r
+      }
+      const vals = val.split(' ').filter(v => v !== '')
+      if (vals.filter(v => !isUnit(v)).length > 0) {
+        return ''
+      }
+      if (vals.length === 1 || new Set(vals).size === 1) {
+        return `p-[${vals[0]}]`
+      } else if (vals.length === 2) {
+        return `px-[${vals[1]}] py-[${vals[0]}]`
+      } else if (vals.length === 3) {
+        if (vals[0] === vals[2]) {
+          return `px-[${vals[1]}] py-[${vals[0]}]`
+        }
+        return `pt-[${vals[0]}] px-[${vals[1]}] pb-[${vals[2]}]`
+      } else if (vals.length === 4) {
+        if (vals[0] === vals[2]) {
+          if (vals[1] === vals[3]) {
+            return `px-[${vals[1]}] py-[${vals[0]}]`
+          }
+          return `pl-[${vals[3]}] pr-[${vals[1]}] py-[${vals[0]}]`
+        }
+        if (vals[1] === vals[3]) {
+          if (vals[0] === vals[2]) {
+            return `px-[${vals[1]}] py-[${vals[0]}]`
+          }
+          return `pl-[${vals[3]}] pr-[${vals[1]}] py-[${vals[0]}]`
+        }
+        return `pt-[${vals[0]}] pr-[${vals[1]}] pb-[${vals[2]}] pl-[${vals[3]}]`
+      }
+      return ''
     }
   ],
   [
     'padding-bottom',
-    val => ((isUnit(val) ? `pb-[${val}]` : ''))
+    val => ({ '0': 'pb-0', '0px': 'pb-0' }[val] ?? ((isUnit(val) ? `pb-[${val}]` : '')))
   ],
   [
     'padding-left',
-    val => ((isUnit(val) ? `pl-[${val}]` : ''))
+    val => ({ '0': 'pl-0', '0px': 'pl-0' }[val] ?? ((isUnit(val) ? `pl-[${val}]` : '')))
   ],
   [
     'padding-right',
-    val => ((isUnit(val) ? `pr-[${val}]` : ''))
+    val => ({ '0': 'pr-0', '0px': 'pr-0' }[val] ?? ((isUnit(val) ? `pr-[${val}]` : '')))
   ],
   [
     'padding-top',
-    val => ((isUnit(val) ? `pt-[${val}]` : ''))
+    val => ({ '0': 'pt-0', '0px': 'pt-0' }[val] ?? ((isUnit(val) ? `pt-[${val}]` : '')))
   ],
   [
     'page-break-after',
@@ -1450,7 +1510,7 @@ const propertyMap: Map<string, Record<string, string> | ((val: string) => string
     'right',
     val => {
       const t = hasNegative(val)
-      return (isUnit(val) ? `${t[0]}right-${getUnitMetacharactersVal(t[1], [CustomSelect.screen]) || `[${t[1]}]`}` : '')
+      return (isUnit(val) ? `${t[0]}right-${getUnitMetacharactersVal(t[1], [CustomSelect.vw, CustomSelect.vh]) || `[${t[1]}]`}` : '')
     }
   ],
   [
@@ -1461,9 +1521,7 @@ const propertyMap: Map<string, Record<string, string> | ((val: string) => string
   ],
   [
     'row-gap',
-    {
-
-    }
+    val => ({ '0': 'gap-y-0' }[val] ?? (isUnit(val) ? `gap-y-[${val}]` : ''))
   ],
   [
     'scroll-snap-align',
@@ -1679,7 +1737,7 @@ const propertyMap: Map<string, Record<string, string> | ((val: string) => string
     'top',
     val => {
       const t = hasNegative(val)
-      return (isUnit(val) ? `${t[0]}top-${getUnitMetacharactersVal(t[1], [CustomSelect.screen]) || `[${t[1]}]`}` : '')
+      return (isUnit(val) ? `${t[0]}top-${getUnitMetacharactersVal(t[1], [CustomSelect.vw, CustomSelect.vh]) || `[${t[1]}]`}` : '')
     }
   ],
   [
@@ -1762,7 +1820,7 @@ const propertyMap: Map<string, Record<string, string> | ((val: string) => string
   ],
   [
     'width',
-    val => (isUnit(val) ? `w-${getUnitMetacharactersVal(val, [CustomSelect.screen]) || `[${val}]`}` : '')
+    val => (isUnit(val) ? `w-${getUnitMetacharactersVal(val, [CustomSelect.vh]) || `[${val}]`}` : '')
   ],
   [
     'word-break',
