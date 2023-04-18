@@ -340,7 +340,16 @@ const propertyMap: Map<string, Record<string, string> | ((val: string) => string
       const vals = getCustomVal(val).replace(/\(.+?\)/g, v => v.replace(/_/g, '')).split(')_').map(v => `${v})`)
       vals[vals.length - 1] = vals[vals.length - 1].slice(0, -1)
 
-      return `backdrop-filter ${[...new Set(vals.map(v => v.replace(/^([a-z-]+)\((.+?)\)$/, (r, k: string, v) => backdropFilterValConfig[k](v))))].join(' ')}`
+      let canUse = true
+      const res = vals.map(v => {
+        let canUsePipeV = false
+        const pipeV = v.replace(/^([a-zA-Z0-9_-]+)\((.+?)\)$/, (r, k: string, v) => {
+          canUsePipeV = true
+          return backdropFilterValConfig[k]?.(v) ?? (canUse = false)
+        })
+        return canUsePipeV ? pipeV : ''
+      })
+      return canUse ? `backdrop-filter ${[...new Set(res)].join(' ')}` : `[backdrop-filter:${getCustomVal(val)}]`
     }
   ],
   [
@@ -1308,70 +1317,64 @@ const propertyMap: Map<string, Record<string, string> | ((val: string) => string
   ],
   [
     'outline-color',
-    val => (isColor(val, true) ? `[outline-color:${getCustomVal(val)}]` : '')
+    val => (isColor(val, true) ? `outline-[${getCustomVal(val)}]` : '')
   ],
   [
     'outline-offset',
-    val => ((isUnit(val) ? `[outline-offset:${val}]` : ''))
+    val => ((isUnit(val) ? `outline-offset-[${val}]` : ''))
   ],
   [
     'outline-style',
     {
-      'none': '[outline-style:none]', 'dotted': '[outline-style:dotted]', 'dashed': '[outline-style:dashed]', 'solid': '[outline-style:solid]', 'double': '[outline-style:double]', 'groove': '[outline-style:groove]', 'ridge': '[outline-style:ridge]', 'inset': '[outline-style:inset]', 'outset': '[outline-style:outset]', 'inherit': '[outline-style:inherit]', 'initial': '[outline-style:initial]'
+      'none': 'outline-[none]', 'dotted': 'outline-dotted', 'dashed': 'outline-dashed', 'solid': '[outline-style:solid]', 'double': 'outline-double', 'groove': '[outline-style:groove]', 'ridge': '[outline-style:ridge]', 'inset': '[outline-style:inset]', 'outset': '[outline-style:outset]'
     }
   ],
   [
     'outline-width',
-    {
-
-    }
+    val => ((isUnit(val) ? `outline-[${val}]` : ''))
   ],
   [
     'overflow',
     {
-
+      'auto': 'overflow-auto', 'hidden': 'overflow-hidden', 'visible': 'overflow-visible', 'scroll': 'overflow-scroll'
     }
   ],
   [
     'overflow-anchor',
-    {
-
-    }
+    val => (`[overflow-anchor:${getCustomVal(val)}]`)
   ],
   [
     'overflow-wrap',
-    {
-
-    }
+    val => (`[overflow-wrap:${getCustomVal(val)}]`)
   ],
   [
     'overflow-x',
     {
-
+      'auto': 'overflow-x-auto', 'hidden': 'overflow-x-hidden', 'visible': 'overflow-x-visible', 'scroll': 'overflow-x-scroll'
     }
   ],
   [
     'overflow-y',
     {
-
+      'auto': 'overflow-y-auto', 'hidden': 'overflow-y-hidden', 'visible': 'overflow-y-visible', 'scroll': 'overflow-y-scroll'
     }
   ],
   [
     'overscroll-behavior',
     {
-
+      'auto': 'overscroll-auto', 'contain': 'overscroll-contain', 'none': 'overscroll-none'
     }
   ],
   [
     'overscroll-behavior-x',
     {
-
+      'auto': 'overscroll-x-auto', 'contain': 'overscroll-x-contain', 'none': 'overscroll-x-none'
     }
   ],
   [
     'overscroll-behavior-y',
     {
-
+      'auto': 'overscroll-y-auto', 'contain': 'overscroll-y-contain', 'none': 'overscroll-y-none'
     }
   ],
   [
@@ -1431,79 +1434,73 @@ const propertyMap: Map<string, Record<string, string> | ((val: string) => string
   [
     'page-break-after',
     {
-
+      'auto': '[page-break-after:auto]', 'always': '[page-break-after:always]', 'avoid': '[page-break-after:avoid]', 'left': '[page-break-after:left]', 'right': '[page-break-after:right]', 'inherit': '[page-break-after:inherit]', 'initial': '[page-break-after:initial]'
     }
   ],
   [
     'page-break-before',
     {
-
+      'auto': '[page-break-before:auto]', 'always': '[page-break-before:always]', 'avoid': '[page-break-before:avoid]', 'left': '[page-break-before:left]', 'right': '[page-break-before:right]', 'inherit': '[page-break-before:inherit]', 'initial': '[page-break-before:initial]'
     }
   ],
   [
     'page-break-inside',
     {
-
+      'auto': '[page-break-inside:auto]', 'avoid': '[page-break-inside:avoid]', 'inherit': '[page-break-inside:inherit]', 'initial': '[page-break-inside:initial]'
     }
   ],
   [
     'perspective',
-    {
-
-    }
+    val => ((isUnit(val) ? `[perspective:${val}]` : ''))
   ],
   [
     'perspective-origin',
-    {
-
-    }
+    val => (`[perspective-origin:${getCustomVal(val)}]`)
   ],
   [
     'place-content',
     {
-
+      'center': 'place-content-center', 'start': 'place-content-start', 'end': 'place-content-end', 'space-between': 'place-content-between', 'space-around': 'place-content-around', 'space-evenly': 'place-content-evenly', 'stretch': 'place-content-stretch'
     }
   ],
   [
     'place-items',
     {
-
+      'start': 'place-items-start', 'end': 'place-items-end', 'center': 'place-items-center', 'stretch': 'place-items-stretch'
     }
   ],
   [
     'place-self',
     {
-
+      'auto': 'place-self-auto', 'start': 'place-self-start', 'end': 'place-self-end', 'center': 'place-self-center', 'stretch': 'place-self-stretch'
     }
   ],
   [
     'pointer-events',
     {
-
+      'none': 'pointer-events-none', 'auto': 'pointer-events-auto'
     }
   ],
   [
     'position',
     {
-
+      'static': 'static', 'fixed': 'fixed', 'absolute': 'absolute', 'relative': 'relative', 'sticky': 'sticky'
     }
   ],
   [
     'punctuation-trim',
     {
-
+      'none': '[punctuation-trim:none]', 'start': '[punctuation-trim:start]', 'end': '[punctuation-trim:end]', 'allow-end': '[punctuation-trim:allow-end]', 'adjacent': '[punctuation-trim:adjacent]', 'initial': '[punctuation-trim:initial]'
     }
   ],
   [
     'quotes',
-    {
-
-    }
+    val => (`[quotes:${getCustomVal(val)}]`)
   ],
   [
     'resize',
     {
-
+      'none': 'resize-none', 'vertical': 'resize-y', 'horizontal': 'resize-x', 'both': 'resize'
     }
   ],
   [
@@ -1515,9 +1512,7 @@ const propertyMap: Map<string, Record<string, string> | ((val: string) => string
   ],
   [
     'rotation',
-    {
-
-    }
+    val => (`[rotation:${getCustomVal(val)}]`)
   ],
   [
     'row-gap',
@@ -1525,212 +1520,169 @@ const propertyMap: Map<string, Record<string, string> | ((val: string) => string
   ],
   [
     'scroll-snap-align',
-    {
-
-    }
+    val => (`[scroll-snap-align:${getCustomVal(val)}]`)
   ],
   [
     'scroll-snap-stop',
-    {
-
-    }
+    val => (`[scroll-snap-stop:${getCustomVal(val)}]`)
   ],
   [
     'scroll-snap-type',
-    {
-
-    }
+    val => (`[scroll-snap-type:${getCustomVal(val)}]`)
   ],
   [
     'scrollbar-width',
-    {
-
-    }
+    val => ((isUnit(val) ? `[scrollbar-width:${val}]` : ''))
   ],
   [
     'shape-image-threshold',
-    {
-
-    }
+    val => (`[shape-image-threshold:${getCustomVal(val)}]`)
   ],
   [
     'shape-margin',
-    {
-
-    }
+    val => (`[shape-margin:${getCustomVal(val)}]`)
   ],
   [
     'shape-outside',
-    {
-
-    }
+    val => (`[shape-outside:${getCustomVal(val)}]`)
   ],
   [
     'stroke',
-    {
-
-    }
+    val => ({
+      currentColor: 'stroke-current',
+      currentcolor: 'stroke-current'
+    }[val] ?? (isColor(val, true) ? `stroke-[${getCustomVal(val)}]` : ''))
   ],
   [
     'stroke-width',
-    {
-
-    }
+    val => ((isUnit(val) ? `stroke-[${val}]` : ''))
   ],
   [
     'tab-size',
-    {
-
-    }
+    val => ((isUnit(val) ? `[tab-size:${val}]` : ''))
   ],
   [
     'table-layout',
     {
-
+      'auto': 'table-auto', 'fixed': 'table-fixed'
     }
   ],
   [
     'target',
-    {
-
-    }
+    val => (`[target:${getCustomVal(val)}]`)
   ],
   [
     'target-name',
-    {
-
-    }
+    val => (`[target-name:${getCustomVal(val)}]`)
   ],
   [
     'target-new',
     {
-
+      'window': '[target-new:window]', 'tab': '[target-new:tab]', 'none': '[target-new:none]', 'initial': '[target-new:initial]'
     }
   ],
   [
     'target-position',
     {
-
+      'above': '[target-position:above]', 'behind': '[target-position:behind]', 'front': '[target-position:front]', 'back': '[target-position:back]', 'initial': '[target-position:initial]'
     }
   ],
   [
     'text-align',
     {
-
+      'left': 'text-left', 'center': 'text-center', 'right': 'text-right', 'justify': 'text-justify'
     }
   ],
   [
     'text-align-last',
     {
-
+      'auto': '[text-align-last:auto]', 'left': '[text-align-last:left]', 'right': '[text-align-last:right]', 'center': '[text-align-last:center]', 'justify': '[text-align-last:justify]', 'start': '[text-align-last:start]', 'end': '[text-align-last:end]', 'initial': '[text-align-last:initial]', 'inherit': '[text-align-last:inherit]'
     }
   ],
   [
     'text-decoration',
     {
-
+      'underline': 'underline', 'line-through': 'line-through', 'none': 'no-underline'
     }
   ],
   [
     'text-decoration-color',
-    {
-
-    }
+    val => (isColor(val, true) ? `[text-decoration-color:${getCustomVal(val)}]` : '')
   ],
   [
     'text-decoration-line',
     {
-
+      'none': '[text-decoration-line:none]', 'underline': '[text-decoration-line:underline]', 'overline': '[text-decoration-line:overline]', 'line-through': '[text-decoration-line:line-through]', 'initial': '[text-decoration-line:initial]', 'inherit': '[text-decoration-line:inherit]'
     }
   ],
   [
     'text-decoration-skip-ink',
-    {
-
-    }
+    val => (`[text-decoration-skip-ink:${getCustomVal(val)}]`)
   ],
   [
     'text-decoration-style',
     {
-
+      'solid': '[text-decoration-style:solid]', 'double': '[text-decoration-style:double]', 'dotted': '[text-decoration-style:dotted]', 'dashed': '[text-decoration-style:dashed]', 'wavy': '[text-decoration-style:wavy]', 'initial': '[text-decoration-style:initial]', 'inherit': '[text-decoration-style:inherit]'
     }
   ],
   [
     'text-emphasis-color',
-    {
-
-    }
+    val => (isColor(val, true) ? `[text-emphasis-color:${getCustomVal(val)}]` : '')
   ],
   [
     'text-emphasis-position',
-    {
-
-    }
+    val => (`[text-emphasis-position:${getCustomVal(val)}]`)
   ],
   [
     'text-emphasis-style',
-    {
-
-    }
+    val => (`[text-emphasis-style:${getCustomVal(val)}]`)
   ],
   [
     'text-indent',
-    {
-
-    }
+    val => ((isUnit(val) ? `[text-indent:${val}]` : ''))
   ],
   [
     'text-justify',
     {
-
+      'auto': '[text-justify:auto]', 'none': '[text-justify:none]', 'inter-word': '[text-justify:inter-word]', 'inter-ideograph': '[text-justify:inter-ideograph]', 'inter-cluster': '[text-justify:inter-cluster]', 'distribute': '[text-justify:distribute]', 'kashida': '[text-justify:kashida]', 'initial': '[text-justify:initial]'
     }
   ],
   [
     'text-orientation',
-    {
-
-    }
+    val => (`[text-orientation:${getCustomVal(val)}]`)
   ],
   [
     'text-outline',
-    {
-
-    }
+    val => (`[text-outline:${getCustomVal(val)}]`)
   ],
   [
     'text-overflow',
-    {
-
-    }
+    val => ({
+      'ellipsis': 'overflow-ellipsis', 'clip': 'overflow-clip'
+    }[val] ?? (`[text-overflow:${getCustomVal(val)}]`))
   ],
   [
     'text-shadow',
-    {
-
-    }
+    val => (`[text-shadow:${getCustomVal(val)}]`)
   ],
   [
     'text-transform',
     {
-
+      'uppercase': 'uppercase', 'lowercase': 'lowercase', 'capitalize': 'capitalize', 'none': 'normal-case'
     }
   ],
   [
     'text-underline-offset',
-    {
-
-    }
+    val => (`[text-underline-offset:${getCustomVal(val)}]`)
   ],
   [
     'text-underline-position',
-    {
-
-    }
+    val => (`[text-underline-position:${getCustomVal(val)}]`)
   ],
   [
     'text-wrap',
     {
-
+      'normal': '[text-wrap:normal]', 'none': '[text-wrap:none]', 'unrestricted': '[text-wrap:unrestricted]', 'suppress': '[text-wrap:suppress]', 'initial': '[text-wrap:initial]'
     }
   ],
   [
@@ -1742,15 +1694,101 @@ const propertyMap: Map<string, Record<string, string> | ((val: string) => string
   ],
   [
     'transform',
-    {
+    (val) => {
+      const defaultVal = { 'none': 'transform-none' }[val]
+      if (defaultVal) {
+        return defaultVal
+      }
 
+      const transformValConfig: Record<string, ((v: string) => string | undefined)> = {
+        scale: (v: string) => {
+          const vs = v.split(',')
+          if (vs.length === 3) {
+            return undefined
+          }
+          if (vs[0] === vs[1] || vs.length === 1) {
+            return `scale-[${vs[0]}]`
+          }
+          return vs.map((v, idx) => {
+            return `scale-${idx === 0 ? 'x' : 'y'}-[${v}]`
+          }).join(' ')
+        },
+        scaleX: (v: string) => `scale-x-[${v}]`,
+        scaleY: (v: string) => `scale-y-[${v}]`,
+        rotate: (v: string) => {
+          const vs = v.split(',')
+          if (vs.length > 1) {
+            if (vs.length === 3 && ['0', '0deg'].findIndex(v => v === vs[0]) > -1 && ['0', '0deg'].findIndex(v => v === vs[1]) > -1) {
+              const t = hasNegative(vs[2])
+              return `${t[0]}rotate-[${t[1]}]`
+            }
+            return undefined
+          }
+          const t = hasNegative(vs[0])
+          return `${t[0]}rotate-[${t[1]}]`
+        },
+        rotateZ: (v: string) => {
+          const t = hasNegative(v)
+          return `${t[0]}rotate-[${t[1]}]`
+        },
+        translate: (v: string) => {
+          const vs = v.split(',')
+          if (vs.length === 3) {
+            return undefined
+          }
+          return vs.map((v, idx) => {
+            const t = hasNegative(v)
+            return `${t[0]}translate-${idx === 0 ? 'x' : 'y'}-[${t[1]}]`
+          }).join(' ')
+        },
+        translateX: (v: string) => {
+          const t = hasNegative(v)
+          return `${t[0]}translate-x-[${t[1]}]`
+        },
+        translateY: (v: string) => {
+          const t = hasNegative(v)
+          return `${t[0]}translate-y-[${t[1]}]`
+        },
+        skew: (v: string) => {
+          const vs = v.split(',')
+          if (vs.length === 3) {
+            return undefined
+          }
+          return vs.map((v, idx) => {
+            const t = hasNegative(v)
+            return `${t[0]}skew-${idx === 0 ? 'x' : 'y'}-[${t[1]}]`
+          }).join(' ')
+        },
+        skewX: (v: string) => {
+          const t = hasNegative(v)
+          return `${t[0]}skew-x-[${t[1]}]`
+        },
+        skewY: (v: string) => {
+          const t = hasNegative(v)
+          return `${t[0]}skew-y-[${t[1]}]`
+        }
+      }
+      const vals = getCustomVal(val).replace(/\(.+?\)/g, v => v.replace(/_/g, '')).split(')_').map(v => `${v})`)
+      vals[vals.length - 1] = vals[vals.length - 1].slice(0, -1)
+
+      let canUse = true
+      const res = vals.map(v => {
+        let canUsePipeV = false
+        const pipeV = v.replace(/^([a-zA-Z0-9_-]+)\((.+?)\)$/, (r, k: string, v) => {
+          canUsePipeV = true
+          const tmpRes = transformValConfig[k]?.(v) ?? (canUse = false)
+          return typeof tmpRes === 'string' ? tmpRes : ''
+        })
+        return canUsePipeV ? pipeV : ''
+      })
+      return canUse ? `transform ${[...new Set(res)].join(' ')}` : `[transform:${getCustomVal(val)}]`
     }
   ],
   [
     'transform-origin',
-    {
-
-    }
+    val => ({
+      'center': 'origin-center', 'top': 'origin-top', 'top_right': 'origin-top-right', 'right': 'origin-right', 'bottom_right': 'origin-bottom-right', 'bottom': 'origin-bottom', 'bottom_left': 'origin-bottom-left', 'left': 'origin-left', 'top_left': 'origin-top-left'
+    }[getCustomVal(val)] ?? `origin-[${getCustomVal(val)}]`)
   ],
   [
     'transform-style',
@@ -1953,7 +1991,7 @@ export const CssToTailwindTranslator = (code: string): {
             }
           }
           if (it.selectorName.endsWith(':hover') && pipeVal.length > 0) {
-            pipeVal = `hover:${pipeVal}`
+            pipeVal = pipeVal.split(' ').map(v => `hover:${v}`).join(' ')
           }
           return pipeVal
         }).filter(v => v !== '')

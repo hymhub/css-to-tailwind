@@ -18,7 +18,7 @@ const ePreventDefault = (e: KeyboardEvent) => {
 }
 
 const demoArray = getDemoArray(
-  'body {\nwidth: 100%;\nheight: 50%;\nmargin: 0 !important;\nbackground-color: transparent;↓\n\n.my-hover:hover {\nbottom: -33.3333%;↓\n\n.my-style {\nmargin: 8px 16px 12px;\ndisplay: flex;\njustify-content: space-between;\nbackdrop-filter: blur(5px) contrast(1.2);↓\n\n@media (min-width: 1536px) {\n.my-media{\ndisplay: grid;\ngrid-auto-flow: row dense;'
+  'body {\nwidth: 100%;\nheight: 50%;\nmargin: 0 !important;\nbackground-color: transparent;\ntransform: translate(10px, -20px) scale(.5);↓\n\n.my-hover:hover {\nbottom: -33.3333%;↓\n\n.my-style {\nmargin: 8px 16px 12px;\ndisplay: flex;\njustify-content: space-between;\nbackdrop-filter: blur(5px) contrast(1.2);↓\n\n@media (min-width: 1536px) {\n.my-media{\ndisplay: grid;\ngrid-auto-flow: row dense;'
 )
 
 export default function Home() {
@@ -102,7 +102,7 @@ export default function Home() {
     }
 
     window.requestAnimationFrame(() => {
-      if (Date.now() - startTimeRef.current >= 50) {
+      if (Date.now() - startTimeRef.current >= 32) {
         startTimeRef.current = Date.now()
         const nextStr = demoStringKey.current.shift()
         if (nextStr === '↓') {
