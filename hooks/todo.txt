@@ -18,9 +18,7 @@ val => {
 
 
 待办：
-1. before/after --> content https://www.tailwindcss.cn/docs/just-in-time-mode
-2. [initial] [inherit] 全局处理
-3. filter
-4. 层叠机制去重
+before/after --> content https://www.tailwindcss.cn/docs/just-in-time-mode
+层叠机制去重
 
 查找空缺：\s+\{\n\n\s+\}\n

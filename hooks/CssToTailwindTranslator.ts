@@ -195,7 +195,7 @@ const isUnit = (str: string) => {
   return [
     'em', 'ex', 'ch', 'rem', 'vw', 'vh', 'vmin', 'vmax',
     'cm', 'mm', 'in', 'pt', 'pc', 'px',
-    'deg', 'grad', 'rad', 'turn',
+    'deg', 'grad', 'rad', 'turn', 'ms', 's', 'Hz', 'kHz',
     '%', 'length', 'inherit', 'thick', 'medium', 'thin', 'initial', 'auto'
   ].includes(str.replace(/[.\d\s-]/g, '')) || /^[-.\d]+$/.test(str.trim())
 }
@@ -804,8 +804,38 @@ const propertyMap: Map<string, Record<string, string> | ((val: string) => string
   ],
   [
     'filter',
-    {
+    val => {
+      const defaultVal = { 'none': 'filter-none' }[val]
+      if (defaultVal) {
+        return defaultVal
+      }
 
+      const backdropFilterValConfig: Record<string, ((v: string) => string)> = {
+        blur: (v: string) => `blur-[${v}]`,
+        brightness: (v: string) => `brightness-[${v}]`,
+        contrast: (v: string) => `contrast-[${v}]`,
+        grayscale: (v: string) => `grayscale-[${v}]`,
+        'hue-rotate': (v: string) => {
+          const t = hasNegative(v)
+          return `${t[0]}hue-rotate-[${t[1]}]`
+        },
+        invert: (v: string) => `invert-[${v}]`,
+        saturate: (v: string) => `saturate-[${v}]`,
+        sepia: (v: string) => `sepia-[${v}]`
+      }
+      const vals = getCustomVal(val).replace(/\(.+?\)/g, v => v.replace(/_/g, '')).split(')_').map(v => `${v})`)
+      vals[vals.length - 1] = vals[vals.length - 1].slice(0, -1)
+
+      let canUse = true
+      const res = vals.map(v => {
+        let canUsePipeV = false
+        const pipeV = v.replace(/^([a-zA-Z0-9_-]+)\((.+?)\)$/, (r, k: string, v) => {
+          canUsePipeV = true
+          return backdropFilterValConfig[k]?.(v) ?? (canUse = false)
+        })
+        return canUsePipeV ? pipeV : ''
+      })
+      return canUse ? `filter ${[...new Set(res)].join(' ')}` : `[filter:${getCustomVal(val)}]`
     }
   ],
   [
@@ -1345,7 +1375,7 @@ const propertyMap: Map<string, Record<string, string> | ((val: string) => string
   ],
   [
     'overflow-wrap',
-    val => (`[overflow-wrap:${getCustomVal(val)}]`)
+    val => ({ 'break-word': 'break-words' }[val] ?? `[overflow-wrap:${getCustomVal(val)}]`)
   ],
   [
     'overflow-x',
@@ -1793,67 +1823,78 @@ const propertyMap: Map<string, Record<string, string> | ((val: string) => string
   [
     'transform-style',
     {
-
+      'flat': '[transform-style:flat]', 'preserve-3d': '[transform-style:preserve-3d]', 'initial': '[transform-style:initial]'
     }
   ],
   [
     'transition',
-    {
-
+    val => {
+      if (val === 'none') {
+        return 'transition-none'
+      }
+      return `[transition:${getCustomVal(val)}]`
     }
   ],
   [
     'transition-delay',
-    {
-
+    val => {
+      val = val.replace(/^([.\d]+)s$/, (v, $1) => `${($1 * 1000).toFixed(6).replace(/\.?0+$/, '')}ms`)
+      return ({
+        '75ms': 'delay-75', '100ms': 'delay-100', '150ms': 'delay-150', '200ms': 'delay-200', '300ms': 'delay-300', '500ms': 'delay-500', '700ms': 'delay-700', '1000ms': 'delay-1000'
+      }[val] ?? (/^[.\d]+[ms]{1,2}$/.test(val) ? `delay-[${getCustomVal(val)}]` : ''))
     }
   ],
   [
     'transition-duration',
-    {
-
+    val => {
+      val = val.replace(/^([.\d]+)s$/, (v, $1) => `${($1 * 1000).toFixed(6).replace(/\.?0+$/, '')}ms`)
+      return ({
+        '75ms': 'duration-75', '100ms': 'duration-100', '150ms': 'duration-150', '200ms': 'duration-200', '300ms': 'duration-300', '500ms': 'duration-500', '700ms': 'duration-700', '1000ms': 'duration-1000'
+      }[val] ?? (/^[.\d]+[ms]{1,2}$/.test(val) ? `duration-[${getCustomVal(val)}]` : ''))
     }
   ],
   [
     'transition-property',
-    {
-
-    }
+    val => (`[transition-property:${getCustomVal(val)}]`)
   ],
   [
     'transition-timing-function',
-    {
-
+    val => {
+      val = val.replace(/\s/g, '')
+      return ({
+        'linear': 'ease-linear', 'cubic-bezier(0.4,0,1,1)': 'ease-in', 'cubic-bezier(0,0,0.2,1)': 'ease-out', 'cubic-bezier(0.4,0,0.2,1)': 'ease-in-out',
+        'ease': 'ease-[ease]', 'ease-in': 'ease-in', 'ease-out': 'ease-out', 'ease-in-out': 'ease-in-out'
+      }[val] ?? (val.startsWith('cubic-bezier') ? `ease-[${getCustomVal(val)}]` : ''))
     }
   ],
   [
     'unicode-bidi',
     {
-
+      'normal': '[unicode-bidi:normal]', 'embed': '[unicode-bidi:embed]', 'bidi-override': '[unicode-bidi:bidi-override]', 'initial': '[unicode-bidi:initial]', 'inherit': '[unicode-bidi:inherit]'
     }
   ],
   [
     'user-select',
     {
-
+      'none': 'select-none', 'text': 'select-text', 'all': 'select-all', 'auto': 'select-auto'
     }
   ],
   [
     'vertical-align',
     {
-
+      'baseline': 'align-baseline', 'top': 'align-top', 'middle': 'align-middle', 'bottom': 'align-bottom', 'text-top': 'align-text-top', 'text-bottom': 'align-text-bottom'
     }
   ],
   [
     'visibility',
     {
-
+      'visible': 'visible', 'hidden': 'invisible'
     }
   ],
   [
     'white-space',
     {
-
+      'normal': 'whitespace-normal', 'nowrap': 'whitespace-nowrap', 'pre': 'whitespace-pre', 'pre-line': 'whitespace-pre-line', 'pre-wrap': 'whitespace-pre-wrap'
     }
   ],
   [
@@ -1863,32 +1904,29 @@ const propertyMap: Map<string, Record<string, string> | ((val: string) => string
   [
     'word-break',
     {
-
+      'break-all': 'break-all',
+      'normal': '[word-break:normal]', 'keep-all': '[word-break:keep-all]', 'initial': '[word-break:initial]'
     }
   ],
   [
     'word-spacing',
-    {
-
-    }
+    val => ((isUnit(val) ? `[word-spacing:${val}]` : ''))
   ],
   [
     'word-wrap',
     {
-
+      'normal': '[word-wrap:normal]', 'break-word': '[word-wrap:break-word]', 'initial': '[word-wrap:initial]'
     }
   ],
   [
     'writing-mode',
-    {
-
-    }
+    val => (`[writing-mode:${getCustomVal(val)}]`)
   ],
   [
     'z-index',
-    {
-
-    }
+    val => ({
+      '0': 'z-0', '10': 'z-10', '20': 'z-20', '30': 'z-30', '40': 'z-40', '50': 'z-50', 'auto': 'z-auto'
+    }[val] ?? (typeof val === 'number' ? `z-[${val}]` : ''))
   ]
 ])
 
@@ -1974,7 +2012,12 @@ export const CssToTailwindTranslator = (code: string): {
             val = val.replace('!important', '').trim()
             hasImportant = true
           }
-          let pipeVal = typeof pipe === 'function' ? pipe(val) : (pipe?.[val] ?? '')
+          let pipeVal = ''
+          if (val === 'initial' || val === 'inherit') {
+            pipeVal = `[${key.trim()}:${val}]`
+          } else {
+            pipeVal = typeof pipe === 'function' ? pipe(val) : (pipe?.[val] ?? '')
+          }
           if (hasImportant) {
             const getImportantVal = (v: string) => {
               if (v[0] === '[' && v[v.length - 1] === ']') {
@@ -1984,14 +2027,18 @@ export const CssToTailwindTranslator = (code: string): {
               }
               return v
             }
-            if (pipeVal.includes(' ')) {
+            if (pipeVal.includes(' ') && ['backdrop-filter', 'filter', 'transform'].filter(v => pipeVal.startsWith(v)).length === 0) {
               pipeVal = pipeVal.split(' ').map(v => getImportantVal(v)).join(' ')
             } else if (pipeVal.length > 0) {
               pipeVal = getImportantVal(pipeVal)
             }
           }
           if (it.selectorName.endsWith(':hover') && pipeVal.length > 0) {
-            pipeVal = pipeVal.split(' ').map(v => `hover:${v}`).join(' ')
+            if (['backdrop-filter', 'filter', 'transform'].filter(v => pipeVal.startsWith(v)).length > 0) {
+              pipeVal = `hover:${pipeVal}`
+            } else {
+              pipeVal = pipeVal.split(' ').map(v => `hover:${v}`).join(' ')
+            }
           }
           return pipeVal
         }).filter(v => v !== '')
