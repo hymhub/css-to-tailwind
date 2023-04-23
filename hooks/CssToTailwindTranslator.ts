@@ -1992,8 +1992,7 @@ export const CssToTailwindTranslator = (code: string): {
     code: 'OK',
     data: parsingCode(code).map(it => {
       if (typeof it.cssCode === 'string') {
-        const cssCodeList = it.cssCode.split(';')
-        cssCodeList[cssCodeList.length - 1] = cssCodeList[cssCodeList.length - 1].slice(0, -1)
+        const cssCodeList = it.cssCode.split(';').filter(v => v !== '')
         const resultVals = cssCodeList.map(v => {
           let key = ''
           let val = ''
