@@ -2,6 +2,7 @@ import clsx from 'clsx'
 import FlipMove from 'react-flip-move'
 import SimpleBar from 'simplebar-react'
 import SvgDark from '@/assets/svg/dark.svg'
+import SvgGitHub from '@/assets/svg/github.svg'
 import SvgLight from '@/assets/svg/light.svg'
 import { copyText } from '@/utils/index'
 
@@ -15,7 +16,7 @@ function ResultSection(props: {
     <section className='font-[Consolas,_"Courier_New",_monospace] lgx:col-start-2 relative lgx:h-full max-lgx:h-1/2 overflow-y-auto text-[#111827] dark:text-[#abb2bf]'>
       <button
         onClick={themeChange}
-        className="w-[60px] h-[32px] absolute right-[16px] top-[16px] rounded-[16px] border-solid border-[1px] dark:border-[rgba(82,82,89,.68)] dark:bg-[#313136] border-[rgba(60,60,67,.29)] bg-[#eeeeee]"
+        className="w-[60px] h-[32px] absolute right-[142px] top-[16px] rounded-[16px] border-solid border-[1px] dark:border-[rgba(82,82,89,.68)] dark:bg-[#313136] border-[rgba(60,60,67,.29)] bg-[#eeeeee]"
       >
         <span
           className={clsx(
@@ -30,6 +31,9 @@ function ResultSection(props: {
           )}
         </span>
       </button>
+      <a target="_blank" href="https://github.com/hymhub/css-to-tailwind" rel="noreferrer">
+        <SvgGitHub className="absolute right-[88px] top-[16px]" width="32px" height="32px" color={isDarkTheme ? 'rgba(235, 235, 245, .6)' : 'rgba(60, 60, 67, .7)'} />
+      </a>
       <h2 className="m-[16px] lgx:text-center text-[22px] font-bold h-[32px]">
         Out Code
       </h2>
