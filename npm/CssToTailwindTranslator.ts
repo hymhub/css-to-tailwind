@@ -1,15 +1,7 @@
-// ['@media', ''],
-// JSON.stringify(Array.from(document.getElementsByTagName('tbody')[0].children).map(el => ({
-//   [el.children[1].innerHTML.split(':')[1].trim().slice(0, -1)]: el.children[0].innerHTML
-// })).reduce((pre, cur) => {
-//   pre[Object.keys(cur)[0]] = Object.values(cur)[0]
-//   return pre
-// }, {})).slice(1, -1)
-
-// JSON.stringify([...[...document.querySelector('.reference > tbody').children].slice(1).map(el => ({[el.children[0].innerHTML]: `[${document.getElementsByClassName('color_h1')[0].innerHTML}:${el.children[0].innerHTML}]`})),{initial: `[${document.getElementsByClassName('color_h1')[0].innerHTML}:initial]`}].reduce((pre, cur) => {
-//   pre[Object.keys(cur)[0]] = Object.values(cur)[0]
-//   return pre
-// }, {})).slice(1, -1)
+export interface ResultCode {
+  selectorName: string
+  resultVal: string
+}
 
 export const specialAttribute = [
   '@charset',
@@ -754,9 +746,7 @@ const propertyMap: Map<string, Record<string, string> | ((val: string) => string
   ],
   [
     'content',
-    {
-
-    }
+    val => (`content-[${getCustomVal(val)}]`)
   ],
   [
     'content-visibility',
@@ -1978,6 +1968,85 @@ const parsingCode = (code: string): CssCodeParse[] => {
   }))
 }
 
+
+const getResultCode = (it: CssCodeParse, prefix = '') => {
+  if (typeof it.cssCode !== 'string') {
+    return null
+  }
+  const cssCodeList = it.cssCode.split(';').filter(v => v !== '')
+  const resultVals = cssCodeList.map(v => {
+    let key = ''
+    let val = ''
+    for (let i = 0; i < v.length; i++) {
+      const c = v[i]
+      if (c !== ':') {
+        key += c
+      } else {
+        val = v.slice(i + 1, v.length).trim()
+        break
+      }
+    }
+    const pipe = propertyMap.get(key.trim())
+    let hasImportant = false
+    if (val.includes('!important')) {
+      val = val.replace('!important', '').trim()
+      hasImportant = true
+    }
+    let pipeVal = ''
+    if (val === 'initial' || val === 'inherit') {
+      pipeVal = `[${key.trim()}:${val}]`
+    } else {
+      pipeVal = typeof pipe === 'function' ? pipe(val) : (pipe?.[val] ?? '')
+    }
+    if (hasImportant) {
+      const getImportantVal = (v: string) => {
+        if (v[0] === '[' && v[v.length - 1] === ']') {
+          v = `${v.slice(0, -1)}!important]`
+        } else {
+          v = `!${v}`
+        }
+        return v
+      }
+      if (pipeVal.includes(' ') && ['backdrop-filter', 'filter', 'transform'].filter(v => pipeVal.startsWith(v)).length === 0) {
+        pipeVal = pipeVal.split(' ').map(v => getImportantVal(v)).join(' ')
+      } else if (pipeVal.length > 0) {
+        pipeVal = getImportantVal(pipeVal)
+      }
+    }
+    if (it.selectorName.endsWith(':hover') && pipeVal.length > 0) {
+      if (['backdrop-filter', 'filter', 'transform'].filter(v => pipeVal.startsWith(v)).length > 0) {
+        pipeVal = `hover:${pipeVal}`
+      } else {
+        pipeVal = pipeVal.split(' ').map(v => `hover:${v}`).join(' ')
+      }
+    } else if (it.selectorName.endsWith('::before') && pipeVal.length > 0) {
+      if (['backdrop-filter', 'filter', 'transform'].filter(v => pipeVal.startsWith(v)).length > 0) {
+        pipeVal = `before:${pipeVal}`
+      } else {
+        pipeVal = pipeVal.split(' ').map(v => `before:${v}`).join(' ')
+      }
+    } else if (it.selectorName.endsWith('::after') && pipeVal.length > 0) {
+      if (['backdrop-filter', 'filter', 'transform'].filter(v => pipeVal.startsWith(v)).length > 0) {
+        pipeVal = `after:${pipeVal}`
+      } else {
+        pipeVal = pipeVal.split(' ').map(v => `after:${v}`).join(' ')
+      }
+    }
+    if (prefix.length > 0) {
+      if (['backdrop-filter', 'filter', 'transform'].filter(v => pipeVal.startsWith(v)).length > 0) {
+        pipeVal = `[${prefix}]:${pipeVal}`
+      } else {
+        pipeVal = pipeVal.split(' ').map(v => `[${prefix}]:${v}`).join(' ')
+      }
+    }
+    return pipeVal
+  }).filter(v => v !== '')
+  return {
+    selectorName: it.selectorName,
+    resultVal: [...new Set(resultVals)].join(' ')
+  }
+}
+
 export const CssToTailwindTranslator = (code: string): {
   code: 'SyntaxError' | 'OK'
   data: ResultCode[]
@@ -1988,72 +2057,30 @@ export const CssToTailwindTranslator = (code: string): {
       data: []
     }
   }
+  const dataArray: ResultCode[] = []
+  parsingCode(code).map(it => {
+    if (typeof it.cssCode === 'string') {
+      return getResultCode(it)
+    } else if (it.selectorName.includes('@media')) {
+      return it.cssCode.map(v => {
+        const res = getResultCode(v, it.selectorName.replace(/\s/g, ''))
+        return res ? ({
+          selectorName: `${it.selectorName.replace(/\s/g, '')}-->${res.selectorName}`,
+          resultVal: res.resultVal
+        }) : null
+      })
+    } else {
+      return null
+    }
+  }).filter(v => v !== null).forEach((v) => {
+    if (Array.isArray(v)) {
+      dataArray.push(...(v as ResultCode[]))
+    } else {
+      dataArray.push(v as ResultCode)
+    }
+  })
   return {
     code: 'OK',
-    data: parsingCode(code).map(it => {
-      if (typeof it.cssCode === 'string') {
-        const cssCodeList = it.cssCode.split(';').filter(v => v !== '')
-        const resultVals = cssCodeList.map(v => {
-          let key = ''
-          let val = ''
-          for (let i = 0; i < v.length; i++) {
-            const c = v[i]
-            if (c !== ':') {
-              key += c
-            } else {
-              val = v.slice(i + 1, v.length).trim()
-              break
-            }
-          }
-          const pipe = propertyMap.get(key.trim())
-          let hasImportant = false
-          if (val.includes('!important')) {
-            val = val.replace('!important', '').trim()
-            hasImportant = true
-          }
-          let pipeVal = ''
-          if (val === 'initial' || val === 'inherit') {
-            pipeVal = `[${key.trim()}:${val}]`
-          } else {
-            pipeVal = typeof pipe === 'function' ? pipe(val) : (pipe?.[val] ?? '')
-          }
-          if (hasImportant) {
-            const getImportantVal = (v: string) => {
-              if (v[0] === '[' && v[v.length - 1] === ']') {
-                v = `${v.slice(0, -1)}!important]`
-              } else {
-                v = `!${v}`
-              }
-              return v
-            }
-            if (pipeVal.includes(' ') && ['backdrop-filter', 'filter', 'transform'].filter(v => pipeVal.startsWith(v)).length === 0) {
-              pipeVal = pipeVal.split(' ').map(v => getImportantVal(v)).join(' ')
-            } else if (pipeVal.length > 0) {
-              pipeVal = getImportantVal(pipeVal)
-            }
-          }
-          if (it.selectorName.endsWith(':hover') && pipeVal.length > 0) {
-            if (['backdrop-filter', 'filter', 'transform'].filter(v => pipeVal.startsWith(v)).length > 0) {
-              pipeVal = `hover:${pipeVal}`
-            } else {
-              pipeVal = pipeVal.split(' ').map(v => `hover:${v}`).join(' ')
-            }
-          }
-          return pipeVal
-        }).filter(v => v !== '')
-        return {
-          selectorName: it.selectorName,
-          resultVal: [...new Set(resultVals)].join(' ')
-        }
-      } else if (it.selectorName.includes('@media')) {
-        // media developing...
-        return {
-          selectorName: it.selectorName,
-          resultVal: 'media developing...'
-        }
-      } else {
-        return null
-      }
-    }).filter(v => v !== null) as ResultCode[]
+    data: dataArray
   }
 }

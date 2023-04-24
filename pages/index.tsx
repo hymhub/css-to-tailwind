@@ -1,15 +1,15 @@
 import Editor from '@monaco-editor/react'
 import clsx from 'clsx'
+import {
+  CssToTailwindTranslator,
+  specialAttribute
+} from 'css-to-tailwind-translator'
 import { useEffect, useRef, useState } from 'react'
 import FlipMove from 'react-flip-move'
 import SimpleBar from 'simplebar-react'
 import { v4 as uuidv4 } from 'uuid'
 import SvgDark from '@/assets/svg/dark.svg'
 import SvgLight from '@/assets/svg/light.svg'
-import {
-  CssToTailwindTranslator,
-  specialAttribute
-} from '@/hooks/CssToTailwindTranslator'
 import { copyText, getDemoArray, toast } from '@/utils/index'
 
 let windowClick: (() => void) | null

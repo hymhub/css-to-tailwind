@@ -8,12 +8,14 @@
     "start": "next start",
     "lint": "next lint",
     "lint:fix": "eslint . --fix",
-    "export": "next export"
+    "export": "next export",
+    "buildnpm": "cd npm&tsc"
   },
   "dependencies": {
     "@monaco-editor/react": "^4.4.6",
     "clipboard": "^2.0.11",
     "clsx": "^1.2.1",
+    "css-to-tailwind-translator": "^1.0.0",
     "next": "13.2.4",
     "react": "18.2.0",
     "react-dom": "18.2.0",

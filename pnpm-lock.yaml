@@ -10,6 +10,9 @@ dependencies:
   clsx:
     specifier: ^1.2.1
     version: 1.2.1
+  css-to-tailwind-translator:
+    specifier: ^1.0.0
+    version: 1.0.0
   next:
     specifier: 13.2.4
     version: 13.2.4(@babel/core@7.21.4)(react-dom@18.2.0)(react@18.2.0)
@@ -2281,6 +2284,10 @@ packages:
       domutils: 3.0.1
       nth-check: 2.1.1
     dev: true
+
+  /css-to-tailwind-translator@1.0.0:
+    resolution: {integrity: sha512-yD0lO2lccjyGv606/SVRTDLlGU3qWL9ddumkFsQ3zVd5rimBrOkWV2pvVecOTpeIh2x6vdjGk5KXIekXZNM7cQ==}
+    dev: false
 
   /css-tree@2.2.1:
     resolution: {integrity: sha512-OA0mILzGc1kCOCSJerOeqDxDQ4HOh+G8NbOJFOTgOCzpw7fCBubk0fEyxp8AgOL/jvLgYA/uV0cMbe43ElF1JA==}

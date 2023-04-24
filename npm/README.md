@@ -5,7 +5,7 @@ Convert CSS code to Tailwindcss syntax in real time
 convert online: [https://hymhub.github.io/css-to-tailwind](https://hymhub.github.io/css-to-tailwind)
 
 <p align="center">
-  <img src="./md/demo.gif">
+  <img src="https://raw.githubusercontent.com/hymhub/css-to-tailwind/HEAD/md/demo.gif">
 <p>
 
 ## use npm
