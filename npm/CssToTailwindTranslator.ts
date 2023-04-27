@@ -1999,7 +1999,7 @@ const getResultCode = (it: CssCodeParse, prefix = '', tailwindPrefix = '') => {
       pipeVal = typeof pipe === 'function' ? pipe(val) : (pipe?.[val] ?? '')
     }
     if (tailwindPrefix.length > 0) {
-      pipeVal = pipeVal.split(' ').map(v => `${tailwindPrefix}${v}`).join(' ')
+      pipeVal = pipeVal.split(' ').map(v => `${v[0] === '-' ? '-' : ''}${tailwindPrefix}${v.replace(/^-/, '')}`).join(' ')
     }
     if (hasImportant) {
       const getImportantVal = (v: string) => {
