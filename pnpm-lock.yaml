@@ -11,8 +11,8 @@ dependencies:
     specifier: ^1.2.1
     version: 1.2.1
   css-to-tailwind-translator:
-    specifier: ^1.0.0
-    version: 1.0.0
+    specifier: ^1.0.1
+    version: 1.0.1
   next:
     specifier: 13.2.4
     version: 13.2.4(@babel/core@7.21.4)(react-dom@18.2.0)(react@18.2.0)
@@ -2285,8 +2285,8 @@ packages:
       nth-check: 2.1.1
     dev: true
 
-  /css-to-tailwind-translator@1.0.0:
-    resolution: {integrity: sha512-yD0lO2lccjyGv606/SVRTDLlGU3qWL9ddumkFsQ3zVd5rimBrOkWV2pvVecOTpeIh2x6vdjGk5KXIekXZNM7cQ==}
+  /css-to-tailwind-translator@1.0.1:
+    resolution: {integrity: sha512-xfLibGEmgcbrSGym/Jvy5caK1QR7lDtcFOYezM4lIu6prUxD48f7SF7AUt/YyIgr9bq3T5BLjeUfOipMgg0RRg==}
     dev: false
 
   /css-tree@2.2.1:
