@@ -1,5 +1,5 @@
 import clsx from 'clsx'
-import { Dispatch, SetStateAction, useState } from 'react'
+import { useState } from 'react'
 import FlipMove from 'react-flip-move'
 import SimpleBar from 'simplebar-react'
 import SvgDark from '@/assets/svg/dark.svg'
@@ -11,7 +11,7 @@ function ResultSection(props: {
   themeChange: () => void
   isDarkTheme?: boolean
   prefix: string
-  setPrefix: Dispatch<SetStateAction<string>>
+  setPrefix: (v: string) => void
   computedResultVals: ComputedResultCode[]
 }) {
   const { themeChange, isDarkTheme, computedResultVals, prefix, setPrefix } = props
