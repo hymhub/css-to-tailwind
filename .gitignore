@@ -35,3 +35,5 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 package-lock.json
+npm/CssToTailwindTranslator.d.ts
+npm/CssToTailwindTranslator.js

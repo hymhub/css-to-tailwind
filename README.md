@@ -44,7 +44,7 @@ console.log(conversionResult);
 
 ## Configuration
 
-`CssToTailwindTranslator: (code: string, config: TranslatorConfig)`
+`CssToTailwindTranslator: (code: string, config?: TranslatorConfig)`
 
 ### `TranslatorConfig`
 

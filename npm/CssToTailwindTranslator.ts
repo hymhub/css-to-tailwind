@@ -2066,7 +2066,7 @@ export interface TranslatorConfig {
   prefix: string
 }
 
-export const CssToTailwindTranslator = (code: string, config: TranslatorConfig): {
+export const CssToTailwindTranslator = (code: string, config?: TranslatorConfig): {
   code: 'SyntaxError' | 'OK'
   data: ResultCode[]
 } => {
