@@ -8,7 +8,15 @@ convert online: [https://hymhub.github.io/css-to-tailwind](https://hymhub.github
   <img src="https://raw.githubusercontent.com/hymhub/css-to-tailwind/HEAD/md/demo.gif">
 <p>
 
-## use npm
+## Use npm
+
+### Install
+
+```bash
+npm i css-to-tailwind-translator
+```
+
+### Usage
 
 ```js
 import { CssToTailwindTranslator } from "css-to-tailwind-translator";
@@ -33,3 +41,13 @@ console.log(conversionResult);
 //   ]
 // }
 ```
+
+## Configuration
+
+`CssToTailwindTranslator: (code: string, config: TranslatorConfig)`
+
+### `TranslatorConfig`
+
+| Attribute |                                    Description                                     |  Type  |
+| :-------: | :--------------------------------------------------------------------------------: | :----: |
+| `prefix`  | [tailwind configuration prefix](https://tailwindcss.com/docs/configuration#prefix) | string |

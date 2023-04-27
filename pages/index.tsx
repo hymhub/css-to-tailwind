@@ -19,9 +19,10 @@ const demoArray = getDemoArray(
 
 export default function Home() {
   const [isDarkTheme, setIsDarkTheme] = useState<boolean>()
+  const [cssCode, setCssCode] = useState<string>('')
   const [resultVals, setResultVals] = useState<ResultCode[]>([])
   const [demoEnded, setDemoEnded] = useState<boolean>(true)
-
+  const [prefix, setPrefix] = useState<string>('')
   const demoStringKey = useRef<string[]>(demoArray)
 
   const [computedResultVals, setComputedResultVals] = useState<
@@ -68,7 +69,11 @@ export default function Home() {
   }, [resultVals])
 
   const handleChange = (val: string | undefined, event: any) => {
-    const result = CssToTailwindTranslator(val ?? '')
+    setCssCode(val ?? '')
+  }
+
+  useEffect(() => {
+    const result = CssToTailwindTranslator(cssCode, { prefix })
     if (result.code === 'SyntaxError') {
       toast.error(
         `[${specialAttribute.join(', ')}] syntax does not support conversion`,
@@ -78,6 +83,11 @@ export default function Home() {
       )
     }
     setResultVals(result.data)
+  }, [cssCode, prefix])
+
+  const handlePrefixChange = (v: string) => {
+    localStorage.setItem('config-prefix', v)
+    setPrefix(v)
   }
 
   const tmpStringRef = useRef<string>('')
@@ -143,6 +153,7 @@ export default function Home() {
 
   useEffect(() => {
     setIsDarkTheme((localStorage.theme ?? 'dark') === 'dark')
+    setPrefix(localStorage.getItem('config-prefix') ?? '')
   }, [])
 
   useEffect(() => {
@@ -154,7 +165,7 @@ export default function Home() {
 
   return (
     <div className="lgx:grid lgx:grid-cols-2 lgx:grid-flow-row-dense h-dom-height max-lgx:overflow-y-auto">
-      <ResultSection themeChange={themeChange} isDarkTheme={isDarkTheme} computedResultVals={computedResultVals} />
+      <ResultSection themeChange={themeChange} isDarkTheme={isDarkTheme} computedResultVals={computedResultVals} prefix={prefix} setPrefix={handlePrefixChange} />
       <section
         ref={editorContainerRef}
         className="lgx:h-full h-1/2 border-t-[1px] border-solid border-[#d9dce1] dark:border-transparent"

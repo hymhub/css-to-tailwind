@@ -1969,7 +1969,7 @@ const parsingCode = (code: string): CssCodeParse[] => {
 }
 
 
-const getResultCode = (it: CssCodeParse, prefix = '') => {
+const getResultCode = (it: CssCodeParse, prefix = '', tailwindPrefix = '') => {
   if (typeof it.cssCode !== 'string') {
     return null
   }
@@ -1998,6 +1998,9 @@ const getResultCode = (it: CssCodeParse, prefix = '') => {
     } else {
       pipeVal = typeof pipe === 'function' ? pipe(val) : (pipe?.[val] ?? '')
     }
+    if (tailwindPrefix.length > 0) {
+      pipeVal = pipeVal.split(' ').map(v => `${tailwindPrefix}${v}`).join(' ')
+    }
     if (hasImportant) {
       const getImportantVal = (v: string) => {
         if (v[0] === '[' && v[v.length - 1] === ']') {
@@ -2018,6 +2021,18 @@ const getResultCode = (it: CssCodeParse, prefix = '') => {
         pipeVal = `hover:${pipeVal}`
       } else {
         pipeVal = pipeVal.split(' ').map(v => `hover:${v}`).join(' ')
+      }
+    } else if (it.selectorName.endsWith(':focus') && pipeVal.length > 0) {
+      if (['backdrop-filter', 'filter', 'transform'].filter(v => pipeVal.startsWith(v)).length > 0) {
+        pipeVal = `focus:${pipeVal}`
+      } else {
+        pipeVal = pipeVal.split(' ').map(v => `focus:${v}`).join(' ')
+      }
+    } else if (it.selectorName.endsWith(':active') && pipeVal.length > 0) {
+      if (['backdrop-filter', 'filter', 'transform'].filter(v => pipeVal.startsWith(v)).length > 0) {
+        pipeVal = `active:${pipeVal}`
+      } else {
+        pipeVal = pipeVal.split(' ').map(v => `active:${v}`).join(' ')
       }
     } else if (it.selectorName.endsWith('::before') && pipeVal.length > 0) {
       if (['backdrop-filter', 'filter', 'transform'].filter(v => pipeVal.startsWith(v)).length > 0) {
@@ -2047,7 +2062,11 @@ const getResultCode = (it: CssCodeParse, prefix = '') => {
   }
 }
 
-export const CssToTailwindTranslator = (code: string): {
+export interface TranslatorConfig {
+  prefix: string
+}
+
+export const CssToTailwindTranslator = (code: string, config: TranslatorConfig): {
   code: 'SyntaxError' | 'OK'
   data: ResultCode[]
 } => {
@@ -2060,10 +2079,10 @@ export const CssToTailwindTranslator = (code: string): {
   const dataArray: ResultCode[] = []
   parsingCode(code).map(it => {
     if (typeof it.cssCode === 'string') {
-      return getResultCode(it)
+      return getResultCode(it, '', config?.prefix)
     } else if (it.selectorName.includes('@media')) {
       return it.cssCode.map(v => {
-        const res = getResultCode(v, it.selectorName.replace(/\s/g, ''))
+        const res = getResultCode(v, it.selectorName.replace(/\s/g, ''), config?.prefix)
         return res ? ({
           selectorName: `${it.selectorName.replace(/\s/g, '')}-->${res.selectorName}`,
           resultVal: res.resultVal
