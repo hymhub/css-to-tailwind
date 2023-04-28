@@ -24,7 +24,7 @@ export default function Home() {
   const [resultVals, setResultVals] = useState<ResultCode[]>([])
   const [demoEnded, setDemoEnded] = useState<boolean>(true)
   const [config, setConfig] = useState<TranslatorConfigCopy>(
-    { ...defaultTranslatorConfig, customTheme: '{\n  "box-shadow": {\n    "10px 10px 5px #888888": "my-custom-theme-shadow"\n  }\n}' }
+    { ...defaultTranslatorConfig, customTheme: '{\n  "box-shadow": {\n    "10px 10px 5px #888888": "box-shadow-custom"\n  }\n}' }
   )
   const demoStringKey = useRef<string[]>(demoArray)
 
