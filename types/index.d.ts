@@ -11,3 +11,7 @@ interface ComputedResultCode {
     val: string
   }[]
 }
+
+interface TranslatorConfigCopy extends Omit<TranslatorConfig, 'customTheme'> {
+  customTheme: string
+}

@@ -10,6 +10,9 @@ export const specialAttribute = [
   '@keyframes'
 ]
 
+let useAllDefaultValues = false
+let customTheme: CustomTheme = {}
+
 const hasNegative = (val: string): ['-' | '', string] => [val[0] === '-' ? '-' : '', val[0] === '-' ? val.slice(1) : val]
 const getCustomVal = (val: string) => {
   val = val.replace(/\s/g, '_')
@@ -186,10 +189,10 @@ const isColor = (str: string, joinLinearGradient = false) => {
 const isUnit = (str: string) => {
   return [
     'em', 'ex', 'ch', 'rem', 'vw', 'vh', 'vmin', 'vmax',
-    'cm', 'mm', 'in', 'pt', 'pc', 'px',
+    'cm', 'mm', 'in', 'pt', 'pc', 'px', 'min-content', 'max-content', 'fit-content',
     'deg', 'grad', 'rad', 'turn', 'ms', 's', 'Hz', 'kHz',
     '%', 'length', 'inherit', 'thick', 'medium', 'thin', 'initial', 'auto'
-  ].includes(str.replace(/[.\d\s-]/g, '')) || /^[-.\d]+$/.test(str.trim())
+  ].includes(str.replace(/[.\d\s-]/g, '')) || /^[-.\d]+$/.test(str.trim()) || /^var\(.+\)$/.test(str)
 }
 
 enum CustomSelect {
@@ -199,8 +202,8 @@ enum CustomSelect {
 }
 
 const getUnitMetacharactersVal = (val: string, excludes: CustomSelect[] = []): string | undefined => {
-  if (/^\d+\.\d+%$/.test(val)) {
-    val = `${Number(val.slice(0, -1)).toFixed(6).replace(/(\.\d{2})\d+/, '$1')}%`
+  if (/^\d+\.[1-9]{2,}%$/.test(val)) {
+    val = `${Number(val.slice(0, -1)).toFixed(6).replace(/(\.[1-9]{2})\d+/, '$1')}%`
   }
   const config: Record<string, string> = {
     'auto': 'auto',
@@ -229,6 +232,22 @@ const getUnitMetacharactersVal = (val: string, excludes: CustomSelect[] = []): s
     delete config[key]
   })
   return config[val]
+}
+
+const getRemDefaultVal = (val: string) => {
+  return ({
+    "0px": "0", "1px": "px", "0.125rem": "0.5", "0.25rem": "1", "0.375rem": "1.5", "0.5rem": "2", "0.625rem": "2.5", "0.75rem": "3", "0.875rem": "3.5", "1rem": "4", "1.25rem": "5", "1.5rem": "6", "1.75rem": "7", "2rem": "8", "2.25rem": "9", "2.5rem": "10", "2.75rem": "11", "3rem": "12", "3.5rem": "14", "4rem": "16", "5rem": "20", "6rem": "24", "7rem": "28", "8rem": "32", "9rem": "36", "10rem": "40", "11rem": "44", "12rem": "48", "13rem": "52", "14rem": "56", "15rem": "60", "16rem": "64", "18rem": "72", "20rem": "80", "24rem": "96"
+  }[val])
+}
+
+const getBorderRadiusDefaultVal = (val: string) => {
+  return ({
+    "0px": "none", "0.125rem": "sm", "0.25rem": "rounded-bl", "0.375rem": "md", "0.5rem": "lg", "0.75rem": "xl", "1rem": "2xl", "1.5rem": "3xl", "9999px": "full"
+  }[val])
+}
+
+const getFilterDefaultVal = (val: string) => {
+  return ({ "blur(0)": "blur-none", "blur(4px)": "blur-sm", "blur(8px)": "blur", "blur(12px)": "blur-md", "blur(16px)": "blur-lg", "blur(24px)": "blur-xl", "blur(40px)": "blur-2xl", "blur(64px)": "blur-3xl", "brightness(0)": "brightness-0", "brightness(.5)": "brightness-50", "brightness(.75)": "brightness-75", "brightness(.9)": "brightness-90", "brightness(.95)": "brightness-95", "brightness(1)": "brightness-100", "brightness(1.05)": "brightness-105", "brightness(1.1)": "brightness-110", "brightness(1.25)": "brightness-125", "brightness(1.5)": "brightness-150", "brightness(2)": "brightness-200", "contrast(0)": "contrast-0", "contrast(.5)": "contrast-50", "contrast(.75)": "contrast-75", "contrast(1)": "contrast-100", "contrast(1.25)": "contrast-125", "contrast(1.5)": "contrast-150", "contrast(2)": "contrast-200", "drop-shadow(0 1px 1px rgba(0,0,0,0.05))": "drop-shadow-sm", "drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1)) drop-shadow(0 1px 1px rgba(0, 0, 0, 0.06))": "drop-shadow", "drop-shadow(0 4px 3px rgba(0, 0, 0, 0.07)) drop-shadow(0 2px 2px rgba(0, 0, 0, 0.06))": "drop-shadow-md", "drop-shadow(0 10px 8px rgba(0, 0, 0, 0.04)) drop-shadow(0 4px 3px rgba(0, 0, 0, 0.1))": "drop-shadow-lg", "drop-shadow(0 20px 13px rgba(0, 0, 0, 0.03)) drop-shadow(0 8px 5px rgba(0, 0, 0, 0.08))": "drop-shadow-xl", "drop-shadow(0 25px 25px rgba(0, 0, 0, 0.15))": "drop-shadow-2xl", "drop-shadow(0 0 #0000)": "drop-shadow-none", "grayscale(0)": "grayscale-0", "grayscale(1)": "grayscale", "hue-rotate(-180deg)": "-hue-rotate-180", "hue-rotate(-90deg)": "-hue-rotate-90", "hue-rotate(-60deg)": "-hue-rotate-60", "hue-rotate(-30deg)": "-hue-rotate-30", "hue-rotate(-15deg)": "-hue-rotate-15", "hue-rotate(0deg)": "hue-rotate-0", "hue-rotate(15deg)": "hue-rotate-15", "hue-rotate(30deg)": "hue-rotate-30", "hue-rotate(60deg)": "hue-rotate-60", "hue-rotate(90deg)": "hue-rotate-90", "hue-rotate(180deg)": "hue-rotate-180", "invert(0)": "invert-0", "invert(1)": "invert", "saturate(0)": "saturate-0", "saturate(.5)": "saturate-50", "saturate(1)": "saturate-100", "saturate(1.5)": "saturate-150", "saturate(2)": "saturate-200", "sepia(0)": "sepia-0", "sepia(1)": "sepia", }[val])
 }
 
 const propertyMap: Map<string, Record<string, string> | ((val: string) => string)> = new Map<string, Record<string, string> | ((val: string) => string)>([
@@ -316,18 +335,18 @@ const propertyMap: Map<string, Record<string, string> | ((val: string) => string
       }
 
       const backdropFilterValConfig: Record<string, ((v: string) => string)> = {
-        blur: (v: string) => `backdrop-blur-[${v}]`,
-        brightness: (v: string) => `backdrop-brightness-[${v}]`,
-        contrast: (v: string) => `contrast-[${v}]`,
-        grayscale: (v: string) => `backdrop-grayscale-[${v}]`,
+        blur: (v: string) => `backdrop-blur-${customTheme["backdrop-blur"]?.[v] ?? `[${v}]`}`,
+        brightness: (v: string) => `backdrop-brightness-${customTheme["backdrop-brightness"]?.[v] ?? `[${v}]`}`,
+        contrast: (v: string) => `backdrop-contrast-${customTheme["backdrop-contrast"]?.[v] ?? `[${v}]`}`,
+        grayscale: (v: string) => `backdrop-grayscale-${customTheme["backdrop-grayscale"]?.[v] ?? `[${v}]`}`,
         'hue-rotate': (v: string) => {
           const t = hasNegative(v)
-          return `${t[0]}backdrop-hue-rotate-[${t[1]}]`
+          return `${t[0]}backdrop-hue-rotate-${customTheme["backdrop-grayscale"]?.[t[1]] ?? `[${t[1]}]`}`
         },
-        invert: (v: string) => `backdrop-invert-[${v}]`,
-        opacity: (v: string) => `backdrop-opacity-[${v}]`,
-        saturate: (v: string) => `backdrop-saturate-[${v}]`,
-        sepia: (v: string) => `backdrop-sepia-[${v}]`
+        invert: (v: string) => `backdrop-invert-${customTheme["backdrop-invert"]?.[v] ?? `[${v}]`}`,
+        opacity: (v: string) => `backdrop-opacity-${customTheme["backdrop-opacity"]?.[v] ?? `[${v}]`}`,
+        saturate: (v: string) => `backdrop-saturate-${customTheme["backdrop-saturate"]?.[v] ?? `[${v}]`}`,
+        sepia: (v: string) => `backdrop-sepia-${customTheme["backdrop-sepia"]?.[v] ?? `[${v}]`}`
       }
       const vals = getCustomVal(val).replace(/\(.+?\)/g, v => v.replace(/_/g, '')).split(')_').map(v => `${v})`)
       vals[vals.length - 1] = vals[vals.length - 1].slice(0, -1)
@@ -335,7 +354,15 @@ const propertyMap: Map<string, Record<string, string> | ((val: string) => string
       let canUse = true
       const res = vals.map(v => {
         let canUsePipeV = false
-        const pipeV = v.replace(/^([a-zA-Z0-9_-]+)\((.+?)\)$/, (r, k: string, v) => {
+        let pipeV = ''
+        if (useAllDefaultValues) {
+          pipeV = (getFilterDefaultVal(v) || { "opacity(0)": "backdrop-opacity-0", "opacity(0.05)": "backdrop-opacity-5", "opacity(0.1)": "backdrop-opacity-10", "opacity(0.2)": "backdrop-opacity-20", "opacity(0.25)": "backdrop-opacity-25", "opacity(0.3)": "backdrop-opacity-30", "opacity(0.4)": "backdrop-opacity-40", "opacity(0.5)": "backdrop-opacity-50", "opacity(0.6)": "backdrop-opacity-60", "opacity(0.7)": "backdrop-opacity-70", "opacity(0.75)": "backdrop-opacity-75", "opacity(0.8)": "backdrop-opacity-80", "opacity(0.9)": "backdrop-opacity-90", "opacity(0.95)": "backdrop-opacity-95", "opacity(1)": "backdrop-opacity-100" }[v]) ?? ''
+          if (pipeV.length > 0) {
+            pipeV = pipeV.startsWith('backdrop-opacity') ? pipeV : `backdrop-${pipeV}`
+            canUsePipeV = true
+          }
+        }
+        pipeV = pipeV.length > 0 ? pipeV : v.replace(/^([a-zA-Z0-9_-]+)\((.+?)\)$/, (r, k: string, v) => {
           canUsePipeV = true
           return backdropFilterValConfig[k]?.(v) ?? (canUse = false)
         })
@@ -437,11 +464,11 @@ const propertyMap: Map<string, Record<string, string> | ((val: string) => string
   ],
   [
     'border-bottom-left-radius',
-    val => ({ '0': 'rounded-bl-none', '0px': 'rounded-bl-none' }[val] ?? (isUnit(val) ? `rounded-bl-[${getCustomVal(val)}]` : ''))
+    val => ({ '0': 'rounded-bl-none', '0px': 'rounded-bl-none' }[val] ?? (isUnit(val) ? `rounded-bl-${(useAllDefaultValues && getBorderRadiusDefaultVal(val)) || `[${getCustomVal(val)}]`}` : ''))
   ],
   [
     'border-bottom-right-radius',
-    val => ({ '0': 'rounded-br-none', '0px': 'rounded-br-none' }[val] ?? (isUnit(val) ? `rounded-br-[${getCustomVal(val)}]` : ''))
+    val => ({ '0': 'rounded-br-none', '0px': 'rounded-br-none' }[val] ?? (isUnit(val) ? `rounded-br-${(useAllDefaultValues && getBorderRadiusDefaultVal(val)) || `[${getCustomVal(val)}]`}` : ''))
   ],
   [
     'border-bottom-style',
@@ -519,18 +546,19 @@ const propertyMap: Map<string, Record<string, string> | ((val: string) => string
       if (val.includes('/')) {
         return `rounded-[${getCustomVal(val)}]`
       }
-      const vals = val.split(' ').filter(v => v !== '')
+      let vals = val.split(' ').filter(v => v !== '')
       if (vals.filter(v => !isUnit(v)).length > 0) {
         return ''
       }
+      vals = vals.map(v => (useAllDefaultValues && getBorderRadiusDefaultVal(v)) || `[${v}]`)
       if (vals.length === 1) {
-        return `rounded-[${vals[0]}]`
+        return `rounded-${vals[0]}`
       } else if (vals.length === 2) {
-        return `rounded-tl-[${vals[0]}] rounded-br-[${vals[0]}] rounded-tr-[${vals[1]}] rounded-bl-[${vals[1]}]`
+        return `rounded-tl-${vals[0]} rounded-br-${vals[0]} rounded-tr-${vals[1]} rounded-bl-${vals[1]}`
       } else if (vals.length === 3) {
-        return `rounded-tl-[${vals[0]}] rounded-br-[${vals[2]}] rounded-tr-[${vals[1]}] rounded-bl-[${vals[1]}]`
+        return `rounded-tl-${vals[0]} rounded-br-${vals[2]} rounded-tr-${vals[1]} rounded-bl-${vals[1]}`
       } else if (vals.length === 4) {
-        return `rounded-tl-[${vals[0]}] rounded-br-[${vals[2]}] rounded-tr-[${vals[1]}] rounded-bl-[${vals[3]}]`
+        return `rounded-tl-${vals[0]} rounded-br-${vals[2]} rounded-tr-${vals[1]} rounded-bl-${vals[3]}`
       }
       return ''
     }
@@ -583,11 +611,11 @@ const propertyMap: Map<string, Record<string, string> | ((val: string) => string
   ],
   [
     'border-top-left-radius',
-    val => ({ '0': 'rounded-tl-none', '0px': 'rounded-tl-none' }[val] ?? (isUnit(val) ? `rounded-tl-[${getCustomVal(val)}]` : ''))
+    val => ({ '0': 'rounded-tl-none', '0px': 'rounded-tl-none' }[val] ?? (isUnit(val) ? `rounded-tl-${(useAllDefaultValues && getBorderRadiusDefaultVal(val)) || `[${getCustomVal(val)}]`}` : ''))
   ],
   [
     'border-top-right-radius',
-    val => ({ '0': 'rounded-tr-none', '0px': 'rounded-tr-none' }[val] ?? (isUnit(val) ? `rounded-tr-[${getCustomVal(val)}]` : ''))
+    val => ({ '0': 'rounded-tr-none', '0px': 'rounded-tr-none' }[val] ?? (isUnit(val) ? `rounded-tr-${(useAllDefaultValues && getBorderRadiusDefaultVal(val)) || `[${getCustomVal(val)}]`}` : ''))
   ],
   [
     'border-top-style',
@@ -617,6 +645,12 @@ const propertyMap: Map<string, Record<string, string> | ((val: string) => string
       'center': '[box-align:unset]',
       'baseline': '[box-align:unset]',
       'stretch': '[box-align:unset]'
+    }
+  ],
+  [
+    'box-decoration-break',
+    {
+      "slice": "decoration-slice", "clone": "decoration-clone"
     }
   ],
   [
@@ -799,19 +833,18 @@ const propertyMap: Map<string, Record<string, string> | ((val: string) => string
       if (defaultVal) {
         return defaultVal
       }
-
-      const backdropFilterValConfig: Record<string, ((v: string) => string)> = {
-        blur: (v: string) => `blur-[${v}]`,
-        brightness: (v: string) => `brightness-[${v}]`,
-        contrast: (v: string) => `contrast-[${v}]`,
-        grayscale: (v: string) => `grayscale-[${v}]`,
+      const filterValConfig: Record<string, ((v: string) => string)> = {
+        blur: (v: string) => `blur-${customTheme["blur"]?.[v] ?? `[${v}]`}`,
+        brightness: (v: string) => `brightness-${customTheme["brightness"]?.[v] ?? `[${v}]`}`,
+        contrast: (v: string) => `contrast-${customTheme["contrast"]?.[v] ?? `[${v}]`}`,
+        grayscale: (v: string) => `grayscale-${customTheme["grayscale"]?.[v] ?? `[${v}]`}`,
         'hue-rotate': (v: string) => {
           const t = hasNegative(v)
-          return `${t[0]}hue-rotate-[${t[1]}]`
+          return `${t[0]}hue-rotate-${customTheme["grayscale"]?.[t[1]] ?? `[${t[1]}]`}`
         },
-        invert: (v: string) => `invert-[${v}]`,
-        saturate: (v: string) => `saturate-[${v}]`,
-        sepia: (v: string) => `sepia-[${v}]`
+        invert: (v: string) => `invert-${customTheme["invert"]?.[v] ?? `[${v}]`}`,
+        saturate: (v: string) => `saturate-${customTheme["saturate"]?.[v] ?? `[${v}]`}`,
+        sepia: (v: string) => `sepia-${customTheme["sepia"]?.[v] ?? `[${v}]`}`
       }
       const vals = getCustomVal(val).replace(/\(.+?\)/g, v => v.replace(/_/g, '')).split(')_').map(v => `${v})`)
       vals[vals.length - 1] = vals[vals.length - 1].slice(0, -1)
@@ -819,9 +852,16 @@ const propertyMap: Map<string, Record<string, string> | ((val: string) => string
       let canUse = true
       const res = vals.map(v => {
         let canUsePipeV = false
-        const pipeV = v.replace(/^([a-zA-Z0-9_-]+)\((.+?)\)$/, (r, k: string, v) => {
+        let pipeV = ''
+        if (useAllDefaultValues) {
+          pipeV = getFilterDefaultVal(v) ?? ''
+          if (pipeV.length > 0) {
+            canUsePipeV = true
+          }
+        }
+        pipeV = pipeV.length > 0 ? pipeV : v.replace(/^([a-zA-Z0-9_-]+)\((.+?)\)$/, (r, k: string, v) => {
           canUsePipeV = true
-          return backdropFilterValConfig[k]?.(v) ?? (canUse = false)
+          return filterValConfig[k]?.(v) ?? (canUse = false)
         })
         return canUsePipeV ? pipeV : ''
       })
@@ -1168,6 +1208,12 @@ const propertyMap: Map<string, Record<string, string> | ((val: string) => string
     val => ((isUnit(val) ? `[logical-width:${val}]` : ''))
   ],
   [
+    'isolation',
+    {
+      "isolate": "isolate", "auto": "isolation-auto"
+    }
+  ],
+  [
     'margin',
     val => {
       const getPipeVal = (val: string) => {
@@ -1175,33 +1221,38 @@ const propertyMap: Map<string, Record<string, string> | ((val: string) => string
         if (r) {
           return r
         }
-        const vals = val.split(' ').filter(v => v !== '')
+        let vals = val.split(' ').filter(v => v !== '')
         if (vals.filter(v => !isUnit(v)).length > 0) {
           return ''
         }
+        if (useAllDefaultValues) {
+          vals = vals.map(v => getRemDefaultVal(v) ?? `[${v}]`)
+        } else {
+          vals = vals.map(v => `[${v}]`)
+        }
         if (vals.length === 1 || new Set(vals).size === 1) {
-          return `m_[${vals[0]}]`
+          return `m_${vals[0]}`
         } else if (vals.length === 2) {
-          return `mx_[${vals[1]}] my_[${vals[0]}]`
+          return `mx_${vals[1]} my_${vals[0]}`
         } else if (vals.length === 3) {
           if (vals[0] === vals[2]) {
-            return `mx_[${vals[1]}] my_[${vals[0]}]`
+            return `mx_${vals[1]} my_${vals[0]}`
           }
-          return `mt_[${vals[0]}] mx_[${vals[1]}] mb_[${vals[2]}]`
+          return `mt_${vals[0]} mx_${vals[1]} mb_${vals[2]}`
         } else if (vals.length === 4) {
           if (vals[0] === vals[2]) {
             if (vals[1] === vals[3]) {
-              return `mx_[${vals[1]}] my_[${vals[0]}]`
+              return `mx_${vals[1]} my_${vals[0]}`
             }
-            return `ml_[${vals[3]}] mr_[${vals[1]}] my_[${vals[0]}]`
+            return `ml_${vals[3]} mr_${vals[1]} my_${vals[0]}`
           }
           if (vals[1] === vals[3]) {
             if (vals[0] === vals[2]) {
-              return `mx_[${vals[1]}] my_[${vals[0]}]`
+              return `mx_${vals[1]} my_${vals[0]}`
             }
-            return `ml_[${vals[3]}] mr_[${vals[1]}] my_[${vals[0]}]`
+            return `ml_${vals[3]} mr_${vals[1]} my_${vals[0]}`
           }
-          return `mt_[${vals[0]}] mr_[${vals[1]}] mb_[${vals[2]}] ml_[${vals[3]}]`
+          return `mt_${vals[0]} mr_${vals[1]} mb_${vals[2]} ml_${vals[3]}`
         }
         return ''
       }
@@ -1213,28 +1264,28 @@ const propertyMap: Map<string, Record<string, string> | ((val: string) => string
     'margin-bottom',
     val => {
       const t = hasNegative(val)
-      return { '0': 'mb-0', '0px': 'mb-0', 'auto': 'mb-auto' }[val] ?? (isUnit(val) ? `${t[0]}mb-[${t[1]}]` : '')
+      return { '0': 'mb-0', '0px': 'mb-0', 'auto': 'mb-auto' }[val] ?? (isUnit(val) ? `${t[0]}mb-${(useAllDefaultValues && getRemDefaultVal(t[1])) || `[${t[1]}]`}` : '')
     }
   ],
   [
     'margin-left',
     val => {
       const t = hasNegative(val)
-      return { '0': 'ml-0', '0px': 'ml-0', 'auto': 'ml-auto' }[val] ?? (isUnit(val) ? `${t[0]}ml-[${t[1]}]` : '')
+      return { '0': 'ml-0', '0px': 'ml-0', 'auto': 'ml-auto' }[val] ?? (isUnit(val) ? `${t[0]}ml-${(useAllDefaultValues && getRemDefaultVal(t[1])) || `[${t[1]}]`}` : '')
     }
   ],
   [
     'margin-right',
     val => {
       const t = hasNegative(val)
-      return { '0': 'mr-0', '0px': 'mr-0', 'auto': 'mr-auto' }[val] ?? (isUnit(val) ? `${t[0]}mr-[${t[1]}]` : '')
+      return { '0': 'mr-0', '0px': 'mr-0', 'auto': 'mr-auto' }[val] ?? (isUnit(val) ? `${t[0]}mr-${(useAllDefaultValues && getRemDefaultVal(t[1])) || `[${t[1]}]`}` : '')
     }
   ],
   [
     'margin-top',
     val => {
       const t = hasNegative(val)
-      return { '0': 'mt-0', '0px': 'mt-0', 'auto': 'mt-auto' }[val] ?? (isUnit(val) ? `${t[0]}mt-[${t[1]}]` : '')
+      return { '0': 'mt-0', '0px': 'mt-0', 'auto': 'mt-auto' }[val] ?? (isUnit(val) ? `${t[0]}mt-${(useAllDefaultValues && getRemDefaultVal(t[1])) || `[${t[1]}]`}` : '')
     }
   ],
   [
@@ -1271,19 +1322,19 @@ const propertyMap: Map<string, Record<string, string> | ((val: string) => string
   ],
   [
     'max-height',
-    val => (isUnit(val) ? `max-h-${getUnitMetacharactersVal(val, [CustomSelect.vw]) || `[${val}]`}` : '')
+    val => (isUnit(val) ? ({ "0px": "max-h-0", "100%": "max-h-full", "100vh": "max-h-screen" }[val] ?? `[${val}]`) : '')
   ],
   [
     'max-width',
-    val => (isUnit(val) ? `max-w-${getUnitMetacharactersVal(val, [CustomSelect.vw, CustomSelect.vh]) || `[${val}]`}` : '')
+    val => (isUnit(val) ? ({ "none": "max-w-none", "100%": "max-w-full", "min-content": "max-w-min", "max-content": "max-w-max" }[val] ?? `[${val}]`) : '')
   ],
   [
     'min-height',
-    val => (isUnit(val) ? `min-h-${getUnitMetacharactersVal(val, [CustomSelect.vw]) || `[${val}]`}` : '')
+    val => (isUnit(val) ? ({ "0px": "min-h-0", "100%": "min-h-full", "100vh": "min-h-screen" }[val] ?? `[${val}]`) : '')
   ],
   [
     'min-width',
-    val => (isUnit(val) ? `min-w-${getUnitMetacharactersVal(val, [CustomSelect.vw, CustomSelect.vh]) || `[${val}]`}` : '')
+    val => (isUnit(val) ? ({ "0px": "min-w-0", "100%": "min-w-full", "min-content": "min-w-min", "max-content": "min-w-max" }[val] ?? `[${val}]`) : '')
   ],
   [
     'mix-blend-mode',
@@ -1404,52 +1455,57 @@ const propertyMap: Map<string, Record<string, string> | ((val: string) => string
       if (r) {
         return r
       }
-      const vals = val.split(' ').filter(v => v !== '')
+      let vals = val.split(' ').filter(v => v !== '')
       if (vals.filter(v => !isUnit(v)).length > 0) {
         return ''
       }
+      if (useAllDefaultValues) {
+        vals = vals.map(v => getRemDefaultVal(v) ?? `[${v}]`)
+      } else {
+        vals = vals.map(v => `[${v}]`)
+      }
       if (vals.length === 1 || new Set(vals).size === 1) {
-        return `p-[${vals[0]}]`
+        return `p-${vals[0]}`
       } else if (vals.length === 2) {
-        return `px-[${vals[1]}] py-[${vals[0]}]`
+        return `px-${vals[1]} py-${vals[0]}`
       } else if (vals.length === 3) {
         if (vals[0] === vals[2]) {
-          return `px-[${vals[1]}] py-[${vals[0]}]`
+          return `px-${vals[1]} py-${vals[0]}`
         }
-        return `pt-[${vals[0]}] px-[${vals[1]}] pb-[${vals[2]}]`
+        return `pt-${vals[0]} px-${vals[1]} pb-${vals[2]}`
       } else if (vals.length === 4) {
         if (vals[0] === vals[2]) {
           if (vals[1] === vals[3]) {
-            return `px-[${vals[1]}] py-[${vals[0]}]`
+            return `px-${vals[1]} py-${vals[0]}`
           }
-          return `pl-[${vals[3]}] pr-[${vals[1]}] py-[${vals[0]}]`
+          return `pl-${vals[3]} pr-${vals[1]} py-${vals[0]}`
         }
         if (vals[1] === vals[3]) {
           if (vals[0] === vals[2]) {
-            return `px-[${vals[1]}] py-[${vals[0]}]`
+            return `px-${vals[1]} py-${vals[0]}`
           }
-          return `pl-[${vals[3]}] pr-[${vals[1]}] py-[${vals[0]}]`
+          return `pl-${vals[3]} pr-${vals[1]} py-${vals[0]}`
         }
-        return `pt-[${vals[0]}] pr-[${vals[1]}] pb-[${vals[2]}] pl-[${vals[3]}]`
+        return `pt-${vals[0]} pr-${vals[1]} pb-${vals[2]} pl-${vals[3]}`
       }
       return ''
     }
   ],
   [
     'padding-bottom',
-    val => ({ '0': 'pb-0', '0px': 'pb-0' }[val] ?? ((isUnit(val) ? `pb-[${val}]` : '')))
+    val => ({ '0': 'pb-0', '0px': 'pb-0' }[val] ?? ((isUnit(val) ? `pb-${(useAllDefaultValues && getRemDefaultVal(val)) || `[${val}]`}` : '')))
   ],
   [
     'padding-left',
-    val => ({ '0': 'pl-0', '0px': 'pl-0' }[val] ?? ((isUnit(val) ? `pl-[${val}]` : '')))
+    val => ({ '0': 'pl-0', '0px': 'pl-0' }[val] ?? ((isUnit(val) ? `pl-${(useAllDefaultValues && getRemDefaultVal(val)) || `[${val}]`}` : '')))
   ],
   [
     'padding-right',
-    val => ({ '0': 'pr-0', '0px': 'pr-0' }[val] ?? ((isUnit(val) ? `pr-[${val}]` : '')))
+    val => ({ '0': 'pr-0', '0px': 'pr-0' }[val] ?? ((isUnit(val) ? `pr-${(useAllDefaultValues && getRemDefaultVal(val)) || `[${val}]`}` : '')))
   ],
   [
     'padding-top',
-    val => ({ '0': 'pt-0', '0px': 'pt-0' }[val] ?? ((isUnit(val) ? `pt-[${val}]` : '')))
+    val => ({ '0': 'pt-0', '0px': 'pt-0' }[val] ?? ((isUnit(val) ? `pt-${(useAllDefaultValues && getRemDefaultVal(val)) || `[${val}]`}` : '')))
   ],
   [
     'page-break-after',
@@ -1720,6 +1776,18 @@ const propertyMap: Map<string, Record<string, string> | ((val: string) => string
         return defaultVal
       }
 
+      const scaleDefaultVs: Record<string, string> = {
+        "0": "0", "1": "100", ".5": "50", ".75": "75", ".9": "90", ".95": "95", "1.05": "105", "1.1": "110", "1.25": "125", "1.5": "150"
+      }
+      const rotateDefaultVs: Record<string, string> = {
+        "0deg": "0", "1deg": "1", "2deg": "2", "3deg": "3", "6deg": "6", "12deg": "12", "45deg": "45", "90deg": "90", "180deg": "180"
+      }
+      const skewDefaultVs: Record<string, string> = {
+        "0deg": "0", "1deg": "1", "2deg": "2", "3deg": "3", "6deg": "6", "12deg": "12"
+      }
+      const translateDefaultVs: Record<string, string> = {
+        "0px": "0", "1px": "px", "0.125rem": "0.5", "0.25rem": "1", "0.375rem": "1.5", "0.5rem": "2", "0.625rem": "2.5", "0.75rem": "3", "0.875rem": "3.5", "1rem": "4", "1.25rem": "5", "1.5rem": "6", "1.75rem": "7", "2rem": "8", "2.25rem": "9", "2.5rem": "10", "2.75rem": "11", "3rem": "12", "3.5rem": "14", "4rem": "16", "5rem": "20", "6rem": "24", "7rem": "28", "8rem": "32", "9rem": "36", "10rem": "40", "11rem": "44", "12rem": "48", "13rem": "52", "14rem": "56", "15rem": "60", "16rem": "64", "18rem": "72", "20rem": "80", "24rem": "96", "50%": "1/2", "33.33%": "1/3", "66.66%": "2/3", "25%": "1/4", "75%": "3/4", "100%": "full"
+      }
       const transformValConfig: Record<string, ((v: string) => string | undefined)> = {
         scale: (v: string) => {
           const vs = v.split(',')
@@ -1727,29 +1795,29 @@ const propertyMap: Map<string, Record<string, string> | ((val: string) => string
             return undefined
           }
           if (vs[0] === vs[1] || vs.length === 1) {
-            return `scale-[${vs[0]}]`
+            return `scale-${customTheme.scale?.[vs[0]] || (useAllDefaultValues && scaleDefaultVs[vs[0]]) || `[${vs[0]}]`}`
           }
           return vs.map((v, idx) => {
-            return `scale-${idx === 0 ? 'x' : 'y'}-[${v}]`
+            return `scale-${idx === 0 ? 'x' : 'y'}-${customTheme.scale?.[v] || (useAllDefaultValues && scaleDefaultVs[v]) || `[${v}]`}`
           }).join(' ')
         },
-        scaleX: (v: string) => `scale-x-[${v}]`,
-        scaleY: (v: string) => `scale-y-[${v}]`,
+        scaleX: (v: string) => `scale-x-${customTheme.scale?.[v] || (useAllDefaultValues && scaleDefaultVs[v]) || `[${v}]`}`,
+        scaleY: (v: string) => `scale-y-${customTheme.scale?.[v] || (useAllDefaultValues && scaleDefaultVs[v]) || `[${v}]`}`,
         rotate: (v: string) => {
           const vs = v.split(',')
           if (vs.length > 1) {
             if (vs.length === 3 && ['0', '0deg'].findIndex(v => v === vs[0]) > -1 && ['0', '0deg'].findIndex(v => v === vs[1]) > -1) {
               const t = hasNegative(vs[2])
-              return `${t[0]}rotate-[${t[1]}]`
+              return `${t[0]}rotate-${customTheme.rotate?.[t[1]] || (useAllDefaultValues && rotateDefaultVs[t[1]]) || `[${t[1]}]`}`
             }
             return undefined
           }
           const t = hasNegative(vs[0])
-          return `${t[0]}rotate-[${t[1]}]`
+          return `${t[0]}rotate-${customTheme.rotate?.[t[1]] || (useAllDefaultValues && rotateDefaultVs[t[1]]) || `[${t[1]}]`}`
         },
         rotateZ: (v: string) => {
           const t = hasNegative(v)
-          return `${t[0]}rotate-[${t[1]}]`
+          return `${t[0]}rotate-${customTheme.rotate?.[t[1]] || (useAllDefaultValues && rotateDefaultVs[t[1]]) || `[${t[1]}]`}`
         },
         translate: (v: string) => {
           const vs = v.split(',')
@@ -1758,16 +1826,25 @@ const propertyMap: Map<string, Record<string, string> | ((val: string) => string
           }
           return vs.map((v, idx) => {
             const t = hasNegative(v)
-            return `${t[0]}translate-${idx === 0 ? 'x' : 'y'}-[${t[1]}]`
+            if (/^\d+\.[1-9]{2,}%$/.test(t[1])) {
+              t[1] = `${Number(t[1].slice(0, -1)).toFixed(6).replace(/(\.[1-9]{2})\d+/, '$1')}%`
+            }
+            return `${t[0]}translate-${idx === 0 ? 'x' : 'y'}-${customTheme.translate?.[t[1]] || (useAllDefaultValues && translateDefaultVs[t[1]]) || `[${t[1]}]`}`
           }).join(' ')
         },
         translateX: (v: string) => {
           const t = hasNegative(v)
-          return `${t[0]}translate-x-[${t[1]}]`
+          if (/^\d+\.[1-9]{2,}%$/.test(t[1])) {
+            t[1] = `${Number(t[1].slice(0, -1)).toFixed(6).replace(/(\.[1-9]{2})\d+/, '$1')}%`
+          }
+          return `${t[0]}translate-x-${customTheme.translate?.[t[1]] || (useAllDefaultValues && translateDefaultVs[t[1]]) || `[${t[1]}]`}`
         },
         translateY: (v: string) => {
           const t = hasNegative(v)
-          return `${t[0]}translate-y-[${t[1]}]`
+          if (/^\d+\.[1-9]{2,}%$/.test(t[1])) {
+            t[1] = `${Number(t[1].slice(0, -1)).toFixed(6).replace(/(\.[1-9]{2})\d+/, '$1')}%`
+          }
+          return `${t[0]}translate-y-${customTheme.translate?.[t[1]] || (useAllDefaultValues && translateDefaultVs[t[1]]) || `[${t[1]}]`}`
         },
         skew: (v: string) => {
           const vs = v.split(',')
@@ -1776,16 +1853,16 @@ const propertyMap: Map<string, Record<string, string> | ((val: string) => string
           }
           return vs.map((v, idx) => {
             const t = hasNegative(v)
-            return `${t[0]}skew-${idx === 0 ? 'x' : 'y'}-[${t[1]}]`
+            return `${t[0]}skew-${idx === 0 ? 'x' : 'y'}-${customTheme.skew?.[t[1]] || (useAllDefaultValues && skewDefaultVs[t[1]]) || `[${t[1]}]`}`
           }).join(' ')
         },
         skewX: (v: string) => {
           const t = hasNegative(v)
-          return `${t[0]}skew-x-[${t[1]}]`
+          return `${t[0]}skew-x-${customTheme.skew?.[t[1]] || (useAllDefaultValues && skewDefaultVs[t[1]]) || `[${t[1]}]`}`
         },
         skewY: (v: string) => {
           const t = hasNegative(v)
-          return `${t[0]}skew-y-[${t[1]}]`
+          return `${t[0]}skew-y-${customTheme.skew?.[t[1]] || (useAllDefaultValues && skewDefaultVs[t[1]]) || `[${t[1]}]`}`
         }
       }
       const vals = getCustomVal(val).replace(/\(.+?\)/g, v => v.replace(/_/g, '')).split(')_').map(v => `${v})`)
@@ -1889,7 +1966,7 @@ const propertyMap: Map<string, Record<string, string> | ((val: string) => string
   ],
   [
     'width',
-    val => (isUnit(val) ? `w-${getUnitMetacharactersVal(val, [CustomSelect.vh]) || `[${val}]`}` : '')
+    val => (isUnit(val) ? `w-${(useAllDefaultValues && getRemDefaultVal(val)) || getUnitMetacharactersVal(val, [CustomSelect.vh]) || `[${val}]`}` : '')
   ],
   [
     'word-break',
@@ -1968,8 +2045,81 @@ const parsingCode = (code: string): CssCodeParse[] => {
   }))
 }
 
+const moreDefaultMediaVals: Record<string, string> = {
+  '@media(min-width:640px)': 'sm',
+  '@media(min-width:768px)': 'md',
+  '@media(min-width:1024px)': 'lg',
+  '@media(min-width:1280px)': 'xl',
+  '@media(min-width:1536px)': '2xl',
+}
 
-const getResultCode = (it: CssCodeParse, prefix = '', tailwindPrefix = '') => {
+let moreDefaultValuesMap: Record<string, Record<string, string>> = {
+  'top': {
+    "0px": "top-0", "1px": "top-px", "0.125rem": "top-0.5", "0.25rem": "top-1", "0.375rem": "top-1.5", "0.5rem": "top-2", "0.625rem": "top-2.5", "0.75rem": "top-3", "0.875rem": "top-3.5", "1rem": "top-4", "1.25rem": "top-5", "1.5rem": "top-6", "1.75rem": "top-7", "2rem": "top-8", "2.25rem": "top-9", "2.5rem": "top-10", "2.75rem": "top-11", "3rem": "top-12", "3.5rem": "top-14", "4rem": "top-16", "5rem": "top-20", "6rem": "top-24", "7rem": "top-28", "8rem": "top-32", "9rem": "top-36", "10rem": "top-40", "11rem": "top-44", "12rem": "top-48", "13rem": "top-52", "14rem": "top-56", "15rem": "top-60", "16rem": "top-64", "18rem": "top-72", "20rem": "top-80", "24rem": "top-96", "auto": "top-auto", "50%": "top-2/4", "33.333333%": "top-1/3", "66.666667%": "top-2/3", "25%": "top-1/4", "75%": "top-3/4", "100%": "top-full", "-1px": "-top-px", "-0.125rem": "-top-0.5", "-0.25rem": "-top-1", "-0.375rem": "-top-1.5", "-0.5rem": "-top-2", "-0.625rem": "-top-2.5", "-0.75rem": "-top-3", "-0.875rem": "-top-3.5", "-1rem": "-top-4", "-1.25rem": "-top-5", "-1.5rem": "-top-6", "-1.75rem": "-top-7", "-2rem": "-top-8", "-2.25rem": "-top-9", "-2.5rem": "-top-10", "-2.75rem": "-top-11", "-3rem": "-top-12", "-3.5rem": "-top-14", "-4rem": "-top-16", "-5rem": "-top-20", "-6rem": "-top-24", "-7rem": "-top-28", "-8rem": "-top-32", "-9rem": "-top-36", "-10rem": "-top-40", "-11rem": "-top-44", "-12rem": "-top-48", "-13rem": "-top-52", "-14rem": "-top-56", "-15rem": "-top-60", "-16rem": "-top-64", "-18rem": "-top-72", "-20rem": "-top-80", "-24rem": "-top-96", "-50%": "-top-2/4", "-33.333333%": "-top-1/3", "-66.666667%": "-top-2/3", "-25%": "-top-1/4", "-75%": "-top-3/4", "-100%": "-top-full"
+  },
+  'bottom': {
+    "0px": "bottom-0", "1px": "bottom-px", "0.125rem": "bottom-0.5", "0.25rem": "bottom-1", "0.375rem": "bottom-1.5", "0.5rem": "bottom-2", "0.625rem": "bottom-2.5", "0.75rem": "bottom-3", "0.875rem": "bottom-3.5", "1rem": "bottom-4", "1.25rem": "bottom-5", "1.5rem": "bottom-6", "1.75rem": "bottom-7", "2rem": "bottom-8", "2.25rem": "bottom-9", "2.5rem": "bottom-10", "2.75rem": "bottom-11", "3rem": "bottom-12", "3.5rem": "bottom-14", "4rem": "bottom-16", "5rem": "bottom-20", "6rem": "bottom-24", "7rem": "bottom-28", "8rem": "bottom-32", "9rem": "bottom-36", "10rem": "bottom-40", "11rem": "bottom-44", "12rem": "bottom-48", "13rem": "bottom-52", "14rem": "bottom-56", "15rem": "bottom-60", "16rem": "bottom-64", "18rem": "bottom-72", "20rem": "bottom-80", "24rem": "bottom-96", "auto": "bottom-auto", "50%": "bottom-2/4", "33.333333%": "bottom-1/3", "66.666667%": "bottom-2/3", "25%": "bottom-1/4", "75%": "bottom-3/4", "100%": "bottom-full", "-1px": "-bottom-px", "-0.125rem": "-bottom-0.5", "-0.25rem": "-bottom-1", "-0.375rem": "-bottom-1.5", "-0.5rem": "-bottom-2", "-0.625rem": "-bottom-2.5", "-0.75rem": "-bottom-3", "-0.875rem": "-bottom-3.5", "-1rem": "-bottom-4", "-1.25rem": "-bottom-5", "-1.5rem": "-bottom-6", "-1.75rem": "-bottom-7", "-2rem": "-bottom-8", "-2.25rem": "-bottom-9", "-2.5rem": "-bottom-10", "-2.75rem": "-bottom-11", "-3rem": "-bottom-12", "-3.5rem": "-bottom-14", "-4rem": "-bottom-16", "-5rem": "-bottom-20", "-6rem": "-bottom-24", "-7rem": "-bottom-28", "-8rem": "-bottom-32", "-9rem": "-bottom-36", "-10rem": "-bottom-40", "-11rem": "-bottom-44", "-12rem": "-bottom-48", "-13rem": "-bottom-52", "-14rem": "-bottom-56", "-15rem": "-bottom-60", "-16rem": "-bottom-64", "-18rem": "-bottom-72", "-20rem": "-bottom-80", "-24rem": "-bottom-96", "-50%": "-bottom-2/4", "-33.333333%": "-bottom-1/3", "-66.666667%": "-bottom-2/3", "-25%": "-bottom-1/4", "-75%": "-bottom-3/4", "-100%": "-bottom-full"
+  },
+  'left': {
+    "0px": "left-0", "1px": "left-px", "0.125rem": "left-0.5", "0.25rem": "left-1", "0.375rem": "left-1.5", "0.5rem": "left-2", "0.625rem": "left-2.5", "0.75rem": "left-3", "0.875rem": "left-3.5", "1rem": "left-4", "1.25rem": "left-5", "1.5rem": "left-6", "1.75rem": "left-7", "2rem": "left-8", "2.25rem": "left-9", "2.5rem": "left-10", "2.75rem": "left-11", "3rem": "left-12", "3.5rem": "left-14", "4rem": "left-16", "5rem": "left-20", "6rem": "left-24", "7rem": "left-28", "8rem": "left-32", "9rem": "left-36", "10rem": "left-40", "11rem": "left-44", "12rem": "left-48", "13rem": "left-52", "14rem": "left-56", "15rem": "left-60", "16rem": "left-64", "18rem": "left-72", "20rem": "left-80", "24rem": "left-96", "auto": "left-auto", "50%": "left-2/4", "33.333333%": "left-1/3", "66.666667%": "left-2/3", "25%": "left-1/4", "75%": "left-3/4", "100%": "left-full", "-1px": "-left-px", "-0.125rem": "-left-0.5", "-0.25rem": "-left-1", "-0.375rem": "-left-1.5", "-0.5rem": "-left-2", "-0.625rem": "-left-2.5", "-0.75rem": "-left-3", "-0.875rem": "-left-3.5", "-1rem": "-left-4", "-1.25rem": "-left-5", "-1.5rem": "-left-6", "-1.75rem": "-left-7", "-2rem": "-left-8", "-2.25rem": "-left-9", "-2.5rem": "-left-10", "-2.75rem": "-left-11", "-3rem": "-left-12", "-3.5rem": "-left-14", "-4rem": "-left-16", "-5rem": "-left-20", "-6rem": "-left-24", "-7rem": "-left-28", "-8rem": "-left-32", "-9rem": "-left-36", "-10rem": "-left-40", "-11rem": "-left-44", "-12rem": "-left-48", "-13rem": "-left-52", "-14rem": "-left-56", "-15rem": "-left-60", "-16rem": "-left-64", "-18rem": "-left-72", "-20rem": "-left-80", "-24rem": "-left-96", "-50%": "-left-2/4", "-33.333333%": "-left-1/3", "-66.666667%": "-left-2/3", "-25%": "-left-1/4", "-75%": "-left-3/4", "-100%": "-left-full"
+  },
+  'right': {
+    "0px": "right-0", "1px": "right-px", "0.125rem": "right-0.5", "0.25rem": "right-1", "0.375rem": "right-1.5", "0.5rem": "right-2", "0.625rem": "right-2.5", "0.75rem": "right-3", "0.875rem": "right-3.5", "1rem": "right-4", "1.25rem": "right-5", "1.5rem": "right-6", "1.75rem": "right-7", "2rem": "right-8", "2.25rem": "right-9", "2.5rem": "right-10", "2.75rem": "right-11", "3rem": "right-12", "3.5rem": "right-14", "4rem": "right-16", "5rem": "right-20", "6rem": "right-24", "7rem": "right-28", "8rem": "right-32", "9rem": "right-36", "10rem": "right-40", "11rem": "right-44", "12rem": "right-48", "13rem": "right-52", "14rem": "right-56", "15rem": "right-60", "16rem": "right-64", "18rem": "right-72", "20rem": "right-80", "24rem": "right-96", "auto": "right-auto", "50%": "right-2/4", "33.333333%": "right-1/3", "66.666667%": "right-2/3", "25%": "right-1/4", "75%": "right-3/4", "100%": "right-full", "-1px": "-right-px", "-0.125rem": "-right-0.5", "-0.25rem": "-right-1", "-0.375rem": "-right-1.5", "-0.5rem": "-right-2", "-0.625rem": "-right-2.5", "-0.75rem": "-right-3", "-0.875rem": "-right-3.5", "-1rem": "-right-4", "-1.25rem": "-right-5", "-1.5rem": "-right-6", "-1.75rem": "-right-7", "-2rem": "-right-8", "-2.25rem": "-right-9", "-2.5rem": "-right-10", "-2.75rem": "-right-11", "-3rem": "-right-12", "-3.5rem": "-right-14", "-4rem": "-right-16", "-5rem": "-right-20", "-6rem": "-right-24", "-7rem": "-right-28", "-8rem": "-right-32", "-9rem": "-right-36", "-10rem": "-right-40", "-11rem": "-right-44", "-12rem": "-right-48", "-13rem": "-right-52", "-14rem": "-right-56", "-15rem": "-right-60", "-16rem": "-right-64", "-18rem": "-right-72", "-20rem": "-right-80", "-24rem": "-right-96", "-50%": "-right-2/4", "-33.333333%": "-right-1/3", "-66.666667%": "-right-2/3", "-25%": "-right-1/4", "-75%": "-right-3/4", "-100%": "-right-full"
+  },
+  'gap': {
+    "0px": "gap-0", "0.125rem": "gap-0.5", "0.25rem": "gap-1", "0.375rem": "gap-1.5", "0.5rem": "gap-2", "0.625rem": "gap-2.5", "0.75rem": "gap-3", "0.875rem": "gap-3.5", "1rem": "gap-4", "1.25rem": "gap-5", "1.5rem": "gap-6", "1.75rem": "gap-7", "2rem": "gap-8", "2.25rem": "gap-9", "2.5rem": "gap-10", "2.75rem": "gap-11", "3rem": "gap-12", "3.5rem": "gap-14", "4rem": "gap-16", "5rem": "gap-20", "6rem": "gap-24", "7rem": "gap-28", "8rem": "gap-32", "9rem": "gap-36", "10rem": "gap-40", "11rem": "gap-44", "12rem": "gap-48", "13rem": "gap-52", "14rem": "gap-56", "15rem": "gap-60", "16rem": "gap-64", "18rem": "gap-72", "20rem": "gap-80", "24rem": "gap-96"
+  },
+  'column-gap': {
+    "0px": "gap-x-0", "1px": "gap-x-px", "0.125rem": "gap-x-0.5", "0.25rem": "gap-x-1", "0.375rem": "gap-x-1.5", "0.5rem": "gap-x-2", "0.625rem": "gap-x-2.5", "0.75rem": "gap-x-3", "0.875rem": "gap-x-3.5", "1rem": "gap-x-4", "1.25rem": "gap-x-5", "1.5rem": "gap-x-6", "1.75rem": "gap-x-7", "2rem": "gap-x-8", "2.25rem": "gap-x-9", "2.5rem": "gap-x-10", "2.75rem": "gap-x-11", "3rem": "gap-x-12", "3.5rem": "gap-x-14", "4rem": "gap-x-16", "5rem": "gap-x-20", "6rem": "gap-x-24", "7rem": "gap-x-28", "8rem": "gap-x-32", "9rem": "gap-x-36", "10rem": "gap-x-40", "11rem": "gap-x-44", "12rem": "gap-x-48", "13rem": "gap-x-52", "14rem": "gap-x-56", "15rem": "gap-x-60", "16rem": "gap-x-64", "18rem": "gap-x-72", "20rem": "gap-x-80", "24rem": "gap-x-96"
+  },
+  'row-gap': {
+    "0px": "gap-y-0", "1px": "gap-y-px", "0.125rem": "gap-y-0.5", "0.25rem": "gap-y-1", "0.375rem": "gap-y-1.5", "0.5rem": "gap-y-2", "0.625rem": "gap-y-2.5", "0.75rem": "gap-y-3", "0.875rem": "gap-y-3.5", "1rem": "gap-y-4", "1.25rem": "gap-y-5", "1.5rem": "gap-y-6", "1.75rem": "gap-y-7", "2rem": "gap-y-8", "2.25rem": "gap-y-9", "2.5rem": "gap-y-10", "2.75rem": "gap-y-11", "3rem": "gap-y-12", "3.5rem": "gap-y-14", "4rem": "gap-y-16", "5rem": "gap-y-20", "6rem": "gap-y-24", "7rem": "gap-y-28", "8rem": "gap-y-32", "9rem": "gap-y-36", "10rem": "gap-y-40", "11rem": "gap-y-44", "12rem": "gap-y-48", "13rem": "gap-y-52", "14rem": "gap-y-56", "15rem": "gap-y-60", "16rem": "gap-y-64", "18rem": "gap-y-72", "20rem": "gap-y-80", "24rem": "gap-y-96"
+  },
+  'max-width': {
+    "0rem": "max-w-0", "20rem": "max-w-xs", "24rem": "max-w-sm", "28rem": "max-w-md", "32rem": "max-w-lg", "36rem": "max-w-xl", "42rem": "max-w-2xl", "48rem": "max-w-3xl", "56rem": "max-w-4xl", "64rem": "max-w-5xl", "72rem": "max-w-6xl", "80rem": "max-w-7xl", "65ch": "max-w-prose", "640px": "max-w-screen-sm", "768px": "max-w-screen-md", "1024px": "max-w-screen-lg", "1280px": "max-w-screen-xl", "1536px": "max-w-screen-2xl"
+  },
+  'max-height': {
+    "1px": "max-h-px", "0.125rem": "max-h-0.5", "0.25rem": "max-h-1", "0.375rem": "max-h-1.5", "0.5rem": "max-h-2", "0.625rem": "max-h-2.5", "0.75rem": "max-h-3", "0.875rem": "max-h-3.5", "1rem": "max-h-4", "1.25rem": "max-h-5", "1.5rem": "max-h-6", "1.75rem": "max-h-7", "2rem": "max-h-8", "2.25rem": "max-h-9", "2.5rem": "max-h-10", "2.75rem": "max-h-11", "3rem": "max-h-12", "3.5rem": "max-h-14", "4rem": "max-h-16", "5rem": "max-h-20", "6rem": "max-h-24", "7rem": "max-h-28", "8rem": "max-h-32", "9rem": "max-h-36", "10rem": "max-h-40", "11rem": "max-h-44", "12rem": "max-h-48", "13rem": "max-h-52", "14rem": "max-h-56", "15rem": "max-h-60", "16rem": "max-h-64", "18rem": "max-h-72", "20rem": "max-h-80", "24rem": "max-h-96",
+  },
+  'font-family': {
+    'ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"': 'font-sans',
+    'ui-serif, Georgia, Cambria, "Times New Roman", Times, serif': 'font-serif',
+    'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace': 'font-mono',
+  },
+  'font-weight': {
+    "100": "font-thin", "200": "font-extralight", "300": "font-light", "400": "font-normal", "500": "font-medium", "600": "font-semibold", "700": "font-bold", "800": "font-extrabold", "900": "font-black"
+  },
+  'line-height': {
+    "1": "leading-none", "2": "leading-loose", ".75rem": "leading-3", "1rem": "leading-4", "1.25rem": "leading-5", "1.5rem": "leading-6", "1.75rem": "leading-7", "2rem": "leading-8", "2.25rem": "leading-9", "2.5rem": "leading-10", "1.25": "leading-tight", "1.375": "leading-snug", "1.5": "leading-normal", "1.625": "leading-relaxed"
+  },
+  'border-width': {
+    "0px": "border-0", "2px": "border-2", "4px": "border-4", "8px": "border-8", "1px": "border"
+  },
+  'border-top-width': {
+    "0px": "border-t-0", "2px": "border-t-2", "4px": "border-t-4", "8px": "border-t-8", "1px": "border-t"
+  },
+  'border-right-width': {
+    "0px": "border-r-0", "2px": "border-r-2", "4px": "border-r-4", "8px": "border-r-8", "1px": "border-r"
+  },
+  'border-bottom-width': {
+    "0px": "border-b-0", "2px": "border-b-2", "4px": "border-b-4", "8px": "border-b-8", "1px": "border-b"
+  },
+  'border-left-width': {
+    "0px": "border-l-0", "2px": "border-l-2", "4px": "border-l-4", "8px": "border-l-8", "1px": "border-l"
+  },
+  'transition': {
+    'all 150ms cubic-bezier(0.4, 0, 0.2, 1)': 'transition-all',
+    'background-color, border-color, color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter 150ms cubic-bezier(0.4, 0, 0.2, 1)': 'transition',
+    'background-color, border-color, color, fill, stroke 150ms cubic-bezier(0.4, 0, 0.2, 1)': 'transition-colors',
+    'opacity 150ms cubic-bezier(0.4, 0, 0.2, 1)': 'transition-opacity',
+    'box-shadow 150ms cubic-bezier(0.4, 0, 0.2, 1)': 'transition-shadow',
+    'transform 150ms cubic-bezier(0.4, 0, 0.2, 1)': 'transition-transform',
+  }
+}
+
+
+
+const getResultCode = (it: CssCodeParse, prefix = '', config: TranslatorConfig) => {
   if (typeof it.cssCode !== 'string') {
     return null
   }
@@ -1996,10 +2146,13 @@ const getResultCode = (it: CssCodeParse, prefix = '', tailwindPrefix = '') => {
     if (val === 'initial' || val === 'inherit') {
       pipeVal = `[${key.trim()}:${val}]`
     } else {
-      pipeVal = typeof pipe === 'function' ? pipe(val) : (pipe?.[val] ?? '')
+      config.customTheme = config.customTheme ?? {}
+      pipeVal = typeof pipe === 'function'
+        ? (config.customTheme[key.trim()]?.[val] || (config.useAllDefaultValues && moreDefaultValuesMap[key.trim()]?.[val]) || pipe(val))
+        : (config.customTheme[key.trim()]?.[val] || (config.useAllDefaultValues && moreDefaultValuesMap[key.trim()]?.[val]) || (pipe?.[val] ?? ''))
     }
-    if (tailwindPrefix.length > 0) {
-      pipeVal = pipeVal.split(' ').map(v => `${v[0] === '-' ? '-' : ''}${tailwindPrefix}${v.replace(/^-/, '')}`).join(' ')
+    if ((config.prefix?.length ?? 0) > 0) {
+      pipeVal = pipeVal.split(' ').map(v => `${v[0] === '-' ? '-' : ''}${config.prefix}${v.replace(/^-/, '')}`).join(' ')
     }
     if (hasImportant) {
       const getImportantVal = (v: string) => {
@@ -2049,9 +2202,9 @@ const getResultCode = (it: CssCodeParse, prefix = '', tailwindPrefix = '') => {
     }
     if (prefix.length > 0) {
       if (['backdrop-filter', 'filter', 'transform'].filter(v => pipeVal.startsWith(v)).length > 0) {
-        pipeVal = `[${prefix}]:${pipeVal}`
+        pipeVal = `${prefix}:${pipeVal}`
       } else {
-        pipeVal = pipeVal.split(' ').map(v => `[${prefix}]:${v}`).join(' ')
+        pipeVal = pipeVal.split(' ').map(v => `${prefix}:${v}`).join(' ')
       }
     }
     return pipeVal
@@ -2062,11 +2215,47 @@ const getResultCode = (it: CssCodeParse, prefix = '', tailwindPrefix = '') => {
   }
 }
 
-export interface TranslatorConfig {
-  prefix: string
+export interface CustomTheme extends Record<string, undefined | Record<string, string>> {
+  media?: Record<string, string>
+  'backdrop-blur'?: Record<string, string>
+  'backdrop-brightness'?: Record<string, string>
+  'backdrop-contrast'?: Record<string, string>
+  'backdrop-grayscale'?: Record<string, string>
+  'backdrop-hue-rotate'?: Record<string, string>
+  'backdrop-invert'?: Record<string, string>
+  'backdrop-opacity'?: Record<string, string>
+  'backdrop-saturate'?: Record<string, string>
+  'backdrop-sepia'?: Record<string, string>
+  blur?: Record<string, string>
+  brightness?: Record<string, string>
+  contrast?: Record<string, string>
+  grayscale?: Record<string, string>
+  'hue-rotate'?: Record<string, string>
+  invert?: Record<string, string>
+  saturate?: Record<string, string>
+  sepia?: Record<string, string>
+  scale?: Record<string, string>
+  rotate?: Record<string, string>
+  translate?: Record<string, string>
+  skew?: Record<string, string>
 }
 
-export const CssToTailwindTranslator = (code: string, config?: TranslatorConfig): {
+export interface TranslatorConfig {
+  prefix?: string
+  /**
+   * @default false
+   */
+  useAllDefaultValues?: boolean
+  customTheme?: CustomTheme
+}
+
+export const defaultTranslatorConfig = {
+  prefix: '',
+  useAllDefaultValues: false,
+  customTheme: {}
+}
+
+export const CssToTailwindTranslator = (code: string, config: TranslatorConfig = defaultTranslatorConfig): {
   code: 'SyntaxError' | 'OK'
   data: ResultCode[]
 } => {
@@ -2076,13 +2265,16 @@ export const CssToTailwindTranslator = (code: string, config?: TranslatorConfig)
       data: []
     }
   }
+  useAllDefaultValues = config.useAllDefaultValues ?? defaultTranslatorConfig.useAllDefaultValues
+  customTheme = config.customTheme ?? defaultTranslatorConfig.customTheme
   const dataArray: ResultCode[] = []
   parsingCode(code).map(it => {
     if (typeof it.cssCode === 'string') {
-      return getResultCode(it, '', config?.prefix)
+      return getResultCode(it, '', config)
     } else if (it.selectorName.includes('@media')) {
       return it.cssCode.map(v => {
-        const res = getResultCode(v, it.selectorName.replace(/\s/g, ''), config?.prefix)
+        const mediaName = it.selectorName.replace(/\s/g, '')
+        const res = getResultCode(v, customTheme.media?.[it.selectorName] || (config.useAllDefaultValues && moreDefaultMediaVals[mediaName]) || `[${mediaName}]`, config)
         return res ? ({
           selectorName: `${it.selectorName.replace(/\s/g, '')}-->${res.selectorName}`,
           resultVal: res.resultVal

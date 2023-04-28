@@ -1,7 +1,8 @@
 import Editor from '@monaco-editor/react'
 import {
   CssToTailwindTranslator,
-  specialAttribute
+  specialAttribute,
+  defaultTranslatorConfig
 } from 'css-to-tailwind-translator'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
@@ -14,7 +15,7 @@ const ePreventDefault = (e: KeyboardEvent) => {
 }
 
 const demoArray = getDemoArray(
-  'body {\nwidth: 100%;\nheight: 50%;\nmargin: 0 !important;\nbackground-color: transparent;\ntransform: translate(10px, -20px) scale(.5);↓\n\n.my-hover:hover {\nbottom: -33.3333%;↓\n\n.my-style {\nmargin: 8px 16px 12px;\ndisplay: flex;\njustify-content: space-between;\nbackdrop-filter: blur(5px) contrast(1.2);↓\n\n@media (min-width: 1536px) {\n.my-media{\ndisplay: grid;\ngrid-auto-flow: row dense;'
+  'body {\nwidth: 100%;\nheight: 50%;\nmargin: 0 !important;\nbackground-color: transparent;\ntransform: translate(10px, -20px) scale(.5);↓\n\n.my-hover:hover {\nbottom: -33.3333%;\nbox-shadow: 10px 10px 5px #888888;↓\n\n.my-style {\nmargin: 0.25rem 0.5rem 0.75rem;\ndisplay: flex;\njustify-content: space-between;\nbackdrop-filter: blur(4px) contrast(1.5);↓\n\n@media (min-width: 1536px) {\n.my-media{\ndisplay: grid;\ngrid-auto-flow: row dense;'
 )
 
 export default function Home() {
@@ -22,7 +23,9 @@ export default function Home() {
   const [cssCode, setCssCode] = useState<string>('')
   const [resultVals, setResultVals] = useState<ResultCode[]>([])
   const [demoEnded, setDemoEnded] = useState<boolean>(true)
-  const [prefix, setPrefix] = useState<string>('')
+  const [config, setConfig] = useState<TranslatorConfigCopy>(
+    { ...defaultTranslatorConfig, customTheme: '{\n  "box-shadow": {\n    "10px 10px 5px #888888": "my-custom-theme-shadow"\n  }\n}' }
+  )
   const demoStringKey = useRef<string[]>(demoArray)
 
   const [computedResultVals, setComputedResultVals] = useState<
@@ -73,7 +76,13 @@ export default function Home() {
   }
 
   useEffect(() => {
-    const result = CssToTailwindTranslator(cssCode, { prefix })
+    let customTheme
+    try {
+      customTheme = JSON.parse(config.customTheme)
+    } catch (error) {
+      return
+    }
+    const result = CssToTailwindTranslator(cssCode, { ...config, customTheme })
     if (result.code === 'SyntaxError') {
       toast.error(
         `[${specialAttribute.join(', ')}] syntax does not support conversion`,
@@ -83,11 +92,11 @@ export default function Home() {
       )
     }
     setResultVals(result.data)
-  }, [cssCode, prefix])
+  }, [cssCode, config])
 
-  const handlePrefixChange = (v: string) => {
-    localStorage.setItem('config-prefix', v)
-    setPrefix(v)
+  const handleConfigChange = (v: TranslatorConfigCopy) => {
+    localStorage.setItem('translator-config', JSON.stringify(v))
+    setConfig(v)
   }
 
   const tmpStringRef = useRef<string>('')
@@ -153,7 +162,8 @@ export default function Home() {
 
   useEffect(() => {
     setIsDarkTheme((localStorage.theme ?? 'dark') === 'dark')
-    setPrefix(localStorage.getItem('config-prefix') ?? '')
+    const c = localStorage.getItem('translator-config')
+    c && setConfig(JSON.parse(c))
   }, [])
 
   useEffect(() => {
@@ -165,7 +175,7 @@ export default function Home() {
 
   return (
     <div className="lgx:grid lgx:grid-cols-2 lgx:grid-flow-row-dense h-dom-height max-lgx:overflow-y-auto">
-      <ResultSection themeChange={themeChange} isDarkTheme={isDarkTheme} computedResultVals={computedResultVals} prefix={prefix} setPrefix={handlePrefixChange} />
+      <ResultSection themeChange={themeChange} isDarkTheme={isDarkTheme} computedResultVals={computedResultVals} config={config} setConfig={handleConfigChange} />
       <section
         ref={editorContainerRef}
         className="lgx:h-full h-1/2 border-t-[1px] border-solid border-[#d9dce1] dark:border-transparent"

@@ -1,3 +1,4 @@
+import Editor from '@monaco-editor/react'
 import clsx from 'clsx'
 import { useState } from 'react'
 import FlipMove from 'react-flip-move'
@@ -10,23 +11,48 @@ import { copyText } from '@/utils/index'
 function ResultSection(props: {
   themeChange: () => void
   isDarkTheme?: boolean
-  prefix: string
-  setPrefix: (v: string) => void
+  config: TranslatorConfigCopy
+  setConfig: (v: TranslatorConfigCopy) => void
   computedResultVals: ComputedResultCode[]
 }) {
-  const { themeChange, isDarkTheme, computedResultVals, prefix, setPrefix } = props
+  const { themeChange, isDarkTheme, computedResultVals, config, setConfig } = props
   const [configShow, setConfigShow] = useState<boolean>(false)
   return (
     <section className='font-[Consolas,_"Courier_New",_monospace] lgx:col-start-2 relative lgx:h-full max-lgx:h-1/2 overflow-y-auto text-[#111827] dark:text-[#abb2bf]'>
       <div className="absolute right-[16px] top-[16px] flex items-center">
         <div className="mr-[16px] relative z-10">
-          <button onClick={() => setConfigShow(v => !v)} className="h-[32px] rounded-[16px] px-[12px] text-[18px] font-bold border-solid border-[1px] dark:border-[rgba(82,82,89,.68)] dark:bg-[#313136] border-[rgba(60,60,67,.29)] bg-[#eeeeee] filter hover:brightness-105 active:enabled:brightness-95">
+          <button onClick={() => setConfigShow(v => !v)} className="h-[32px] rounded-[16px] px-[12px] text-[16px] font-bold border-solid border-[1px] dark:border-[rgba(82,82,89,.68)] dark:bg-[#313136] border-[rgba(60,60,67,.29)] bg-[#eeeeee] filter hover:brightness-105 active:enabled:brightness-95">
             SetConfig
           </button>
-          <ul className={clsx('absolute right-[0] -bottom-[16px] transform translate-y-full dark:border-[#454545] border-[#c8c8c8] border-solid border-[1px] dark:bg-[#1e1e1e] bg-[#f3f3f3] rounded-[8px] p-[16px]', configShow ? 'opacity-100' : 'opacity-0 pointer-events-none')}>
-            <li className="flex items-center">
+          <ul className={clsx('absolute left-1/2 -bottom-[16px] transform translate-y-full -translate-x-1/2 dark:border-[#454545] border-[#c8c8c8] border-solid border-[1px] dark:bg-[#1e1e1e] bg-[#f3f3f3] rounded-[8px] pt-[16px] px-[16px] pb-[8px] before:content-[""] before:w-[8px] before:h-[8px] before:bg-inherit before:block before:absolute before:-top-[4px] before:[border:inherit] before:!border-b-transparent before:!border-r-transparent before:left-1/2 before:transform before:-translate-x-1/2 before:rotate-45 [&>li]:mb-[8px]', configShow ? 'opacity-100' : 'opacity-0 pointer-events-none')}>
+            <li className="flex items-center w-[300px]">
               <span>prefix:</span>
-              <input value={prefix} onChange={e => setPrefix(e.target.value)} type="text" className="ml-[8px] py-[2px] px-[4px] dark:bg-[#0f0f0f] bg-[#ffffff] rounded-[4px] text-inherit" />
+              <input value={config.prefix} onChange={e => setConfig({ ...config, prefix: e.target.value })} type="text" className="w-[220px] ml-[8px] py-[2px] px-[4px] dark:bg-[#0f0f0f] bg-[#ffffff] rounded-[4px] text-inherit outline-none border-[1px] border-solid border-transparent dark:focus:border-[#f3f3f3] focus:border-[#454545]" />
+            </li>
+            <li className="flex items-center">
+              <span>useAllDefaultValues:</span>
+              <input checked={config.useAllDefaultValues} onChange={e => setConfig({ ...config, useAllDefaultValues: e.target.checked })} type="checkbox" className="w-[20px] h-[20px] ml-[8px]" />
+            </li>
+            <li className="flex flex-col">
+              <span>customTheme:</span>
+              <div>
+                <Editor
+                  className="text-inherit outline-none border-[1px] border-solid dark:border-[#454545] border-[#c8c8c8]"
+                  width={'100%'}
+                  height={300}
+                  language="json"
+                  theme={isDarkTheme ? 'vs-dark' : 'light'}
+                  onChange={v => setConfig({ ...config, customTheme: v ?? '' })}
+                  defaultValue={config.customTheme}
+                  options={{
+                    fontSize: 18,
+                    lineNumbers: 'off',
+                    minimap: {
+                      enabled: false
+                    }
+                  }}
+                />
+              </div>
             </li>
           </ul>
         </div>
