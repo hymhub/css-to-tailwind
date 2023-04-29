@@ -78,10 +78,8 @@ export default function Home() {
   useEffect(() => {
     let customTheme
     try {
-      customTheme = JSON.parse(config.customTheme)
-    } catch (error) {
-      return
-    }
+      customTheme = JSON.parse(config.customTheme.trim())
+    } catch (error) { /* empty */ }
     const result = CssToTailwindTranslator(cssCode, { ...config, customTheme })
     if (result.code === 'SyntaxError') {
       toast.error(
