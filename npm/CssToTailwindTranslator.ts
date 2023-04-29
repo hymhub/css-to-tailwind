@@ -2051,6 +2051,11 @@ const moreDefaultMediaVals: Record<string, string> = {
   '@media(min-width:1024px)': 'lg',
   '@media(min-width:1280px)': 'xl',
   '@media(min-width:1536px)': '2xl',
+  '@media_not_all_and(min-width:640px)': 'max-sm',
+  '@media_not_all_and(min-width:768px)': 'max-md',
+  '@media_not_all_and(min-width:1024px)': 'max-lg',
+  '@media_not_all_and(min-width:1280px)': 'max-xl',
+  '@media_not_all_and(min-width:1536px)': 'max-2xl',
 }
 
 let moreDefaultValuesMap: Record<string, Record<string, string>> = {
@@ -2273,10 +2278,10 @@ export const CssToTailwindTranslator = (code: string, config: TranslatorConfig =
       return getResultCode(it, '', config)
     } else if (it.selectorName.includes('@media')) {
       return it.cssCode.map(v => {
-        const mediaName = it.selectorName.replace(/\s/g, '')
+        const mediaName = getCustomVal(it.selectorName.replace(/\(.+\)/g, v => v.replace(/\s/g, '')).replace(/\s+\(/g, '('))
         const res = getResultCode(v, customTheme.media?.[it.selectorName] || (config.useAllDefaultValues && moreDefaultMediaVals[mediaName]) || `[${mediaName}]`, config)
         return res ? ({
-          selectorName: `${it.selectorName.replace(/\s/g, '')}-->${res.selectorName}`,
+          selectorName: `${it.selectorName}-->${res.selectorName}`,
           resultVal: res.resultVal
         }) : null
       })
