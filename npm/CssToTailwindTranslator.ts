@@ -242,7 +242,7 @@ const getRemDefaultVal = (val: string) => {
 
 const getBorderRadiusDefaultVal = (val: string) => {
   return ({
-    "0px": "none", "0.125rem": "sm", "0.25rem": "rounded-bl", "0.375rem": "md", "0.5rem": "lg", "0.75rem": "xl", "1rem": "2xl", "1.5rem": "3xl", "9999px": "full"
+    "0px": "none", "0.125rem": "sm", "0.25rem": "", "0.375rem": "md", "0.5rem": "lg", "0.75rem": "xl", "1rem": "2xl", "1.5rem": "3xl", "9999px": "full"
   }[val])
 }
 
