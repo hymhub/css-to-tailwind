@@ -242,7 +242,15 @@ const getRemDefaultVal = (val: string) => {
 
 const getBorderRadiusDefaultVal = (val: string) => {
   return ({
-    "0px": "none", "0.125rem": "sm", "0.25rem": "", "0.375rem": "md", "0.5rem": "lg", "0.75rem": "xl", "1rem": "2xl", "1.5rem": "3xl", "9999px": "full"
+    "0px": "-none",
+    "0.125rem": "-sm",
+    "0.25rem": "null",
+    "0.375rem": "-md",
+    "0.5rem": "-lg",
+    "0.75rem": "-xl",
+    "1rem": "-2xl",
+    "1.5rem": "-3xl",
+    "9999px": "-full"
   }[val])
 }
 
@@ -464,11 +472,11 @@ const propertyMap: Map<string, Record<string, string> | ((val: string) => string
   ],
   [
     'border-bottom-left-radius',
-    val => ({ '0': 'rounded-bl-none', '0px': 'rounded-bl-none' }[val] ?? (isUnit(val) ? `rounded-bl-${(useAllDefaultValues && getBorderRadiusDefaultVal(val)) || `[${getCustomVal(val)}]`}` : ''))
+    val => ({ '0': 'rounded-bl-none', '0px': 'rounded-bl-none' }[val] ?? (isUnit(val) ? `rounded-bl${((useAllDefaultValues && getBorderRadiusDefaultVal(val)) || `-[${getCustomVal(val)}]`).replace(/null$/, '')}` : ''))
   ],
   [
     'border-bottom-right-radius',
-    val => ({ '0': 'rounded-br-none', '0px': 'rounded-br-none' }[val] ?? (isUnit(val) ? `rounded-br-${(useAllDefaultValues && getBorderRadiusDefaultVal(val)) || `[${getCustomVal(val)}]`}` : ''))
+    val => ({ '0': 'rounded-br-none', '0px': 'rounded-br-none' }[val] ?? (isUnit(val) ? `rounded-br${((useAllDefaultValues && getBorderRadiusDefaultVal(val)) || `-[${getCustomVal(val)}]`).replace(/null$/, '')}` : ''))
   ],
   [
     'border-bottom-style',
@@ -550,15 +558,15 @@ const propertyMap: Map<string, Record<string, string> | ((val: string) => string
       if (vals.filter(v => !isUnit(v)).length > 0) {
         return ''
       }
-      vals = vals.map(v => (useAllDefaultValues && getBorderRadiusDefaultVal(v)) || `[${v}]`)
+      vals = vals.map(v => ((useAllDefaultValues && getBorderRadiusDefaultVal(v)) || `-[${v}]`).replace(/null$/, ''))
       if (vals.length === 1) {
-        return `rounded-${vals[0]}`
+        return `rounded${vals[0]}`
       } else if (vals.length === 2) {
-        return `rounded-tl-${vals[0]} rounded-br-${vals[0]} rounded-tr-${vals[1]} rounded-bl-${vals[1]}`
+        return `rounded-tl${vals[0]} rounded-br${vals[0]} rounded-tr${vals[1]} rounded-bl${vals[1]}`
       } else if (vals.length === 3) {
-        return `rounded-tl-${vals[0]} rounded-br-${vals[2]} rounded-tr-${vals[1]} rounded-bl-${vals[1]}`
+        return `rounded-tl${vals[0]} rounded-br${vals[2]} rounded-tr${vals[1]} rounded-bl${vals[1]}`
       } else if (vals.length === 4) {
-        return `rounded-tl-${vals[0]} rounded-br-${vals[2]} rounded-tr-${vals[1]} rounded-bl-${vals[3]}`
+        return `rounded-tl${vals[0]} rounded-br${vals[2]} rounded-tr${vals[1]} rounded-bl${vals[3]}`
       }
       return ''
     }
@@ -611,11 +619,11 @@ const propertyMap: Map<string, Record<string, string> | ((val: string) => string
   ],
   [
     'border-top-left-radius',
-    val => ({ '0': 'rounded-tl-none', '0px': 'rounded-tl-none' }[val] ?? (isUnit(val) ? `rounded-tl-${(useAllDefaultValues && getBorderRadiusDefaultVal(val)) || `[${getCustomVal(val)}]`}` : ''))
+    val => ({ '0': 'rounded-tl-none', '0px': 'rounded-tl-none' }[val] ?? (isUnit(val) ? `rounded-tl${((useAllDefaultValues && getBorderRadiusDefaultVal(val)) || `-[${getCustomVal(val)}]`).replace(/null$/, '')}` : ''))
   ],
   [
     'border-top-right-radius',
-    val => ({ '0': 'rounded-tr-none', '0px': 'rounded-tr-none' }[val] ?? (isUnit(val) ? `rounded-tr-${(useAllDefaultValues && getBorderRadiusDefaultVal(val)) || `[${getCustomVal(val)}]`}` : ''))
+    val => ({ '0': 'rounded-tr-none', '0px': 'rounded-tr-none' }[val] ?? (isUnit(val) ? `rounded-tr${((useAllDefaultValues && getBorderRadiusDefaultVal(val)) || `-[${getCustomVal(val)}]`).replace(/null$/, '')}` : ''))
   ],
   [
     'border-top-style',
