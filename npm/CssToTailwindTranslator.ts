@@ -2256,7 +2256,7 @@ export interface CustomTheme extends Record<string, undefined | Record<string, s
 export interface TranslatorConfig {
   prefix?: string
   /**
-   * @default false
+   * @default true
    */
   useAllDefaultValues?: boolean
   customTheme?: CustomTheme
@@ -2264,7 +2264,7 @@ export interface TranslatorConfig {
 
 export const defaultTranslatorConfig = {
   prefix: '',
-  useAllDefaultValues: false,
+  useAllDefaultValues: true,
   customTheme: {}
 }
 
