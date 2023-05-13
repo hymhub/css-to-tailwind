@@ -51,7 +51,7 @@ console.log(conversionResult);
 |       Attribute       |                                    Description                                     |            Type             |
 | :-------------------: | :--------------------------------------------------------------------------------: | :-------------------------: |
 |       `prefix`        | [tailwind configuration prefix](https://tailwindcss.com/docs/configuration#prefix) |           string            |
-| `useAllDefaultValues` |               Use tailwind all default values(The default is false)                |           boolean           |
+| `useAllDefaultValues` |                Use tailwind all default values(The default is true)                |           boolean           |
 |     `customTheme`     |                    Custom conversion of preset property values                     | [CustomTheme](#customtheme) |
 
 ### `CustomTheme`
