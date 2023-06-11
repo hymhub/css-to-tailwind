@@ -1144,7 +1144,7 @@ const propertyMap: Map<string, Record<string, string> | ((val: string) => string
   ],
   [
     'height',
-    val => (isUnit(val) ? `h-${getUnitMetacharactersVal(val, [CustomSelect.vw]) || `[${val}]`}` : '')
+    val => (isUnit(val) ? `h-${(useAllDefaultValues && getRemDefaultVal(val)) || getUnitMetacharactersVal(val, [CustomSelect.vw]) || `[${val}]`}` : '')
   ],
   [
     'icon',
