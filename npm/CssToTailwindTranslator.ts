@@ -1330,19 +1330,19 @@ const propertyMap: Map<string, Record<string, string> | ((val: string) => string
   ],
   [
     'max-height',
-    val => (isUnit(val) ? ({ "0px": "max-h-0", "100%": "max-h-full", "100vh": "max-h-screen" }[val] ?? `[${val}]`) : '')
+    val => (isUnit(val) ? ({ "0px": "max-h-0", "100%": "max-h-full", "100vh": "max-h-screen" }[val] ?? `max-h-[${val}]`) : '')
   ],
   [
     'max-width',
-    val => (isUnit(val) ? ({ "none": "max-w-none", "100%": "max-w-full", "min-content": "max-w-min", "max-content": "max-w-max" }[val] ?? `[${val}]`) : '')
+    val => (isUnit(val) ? ({ "none": "max-w-none", "100%": "max-w-full", "min-content": "max-w-min", "max-content": "max-w-max" }[val] ?? `max-w-[${val}]`) : '')
   ],
   [
     'min-height',
-    val => (isUnit(val) ? ({ "0px": "min-h-0", "100%": "min-h-full", "100vh": "min-h-screen" }[val] ?? `[${val}]`) : '')
+    val => (isUnit(val) ? ({ "0px": "min-h-0", "100%": "min-h-full", "100vh": "min-h-screen" }[val] ?? `min-h-[${val}]`) : '')
   ],
   [
     'min-width',
-    val => (isUnit(val) ? ({ "0px": "min-w-0", "100%": "min-w-full", "min-content": "min-w-min", "max-content": "min-w-max" }[val] ?? `[${val}]`) : '')
+    val => (isUnit(val) ? ({ "0px": "min-w-0", "100%": "min-w-full", "min-content": "min-w-min", "max-content": "min-w-max" }[val] ?? `min-w-[${val}]`) : '')
   ],
   [
     'mix-blend-mode',
