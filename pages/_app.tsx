@@ -15,7 +15,7 @@ export default function App({ Component, pageProps }: AppProps) {
         <title>Css To Tailwind</title>
         <meta name="description" content="Css To Tailwind" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" href="/css-to-tailwind/favicon.ico" />
       </Head>
       <main>
         <Component {...pageProps} />
