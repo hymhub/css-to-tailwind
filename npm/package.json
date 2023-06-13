@@ -1,6 +1,6 @@
 {
   "name": "css-to-tailwind-translator",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "Convert CSS code to Tailwindcss syntax in real time",
   "scripts": {},
   "repository": {
