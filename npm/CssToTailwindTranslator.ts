@@ -1595,8 +1595,8 @@ const propertyMap: Map<string, Record<string, string> | ((val: string) => string
     }
   ],
   [
-    'rotation',
-    val => (`[rotation:${getCustomVal(val)}]`)
+    'rotate',
+    val => (`[rotate:${getCustomVal(val)}]`)
   ],
   [
     'row-gap',
