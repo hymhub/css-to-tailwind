@@ -110,7 +110,7 @@ function ResultSection(props: {
                 >
                   {it.resultVal.map((v) => (
                     <span
-                      className="ml-[8px] h-[22px] inline-block overflow-hidden leading-[22px] mb-[6px]"
+                      className="ml-[8px] h-[22px] max-w-[90vw] lgx:max-w-[40vw] inline-block overflow-hidden text-ellipsis leading-[22px] mb-[6px] whitespace-nowrap"
                       key={v.id}
                     >
                       {v.val}

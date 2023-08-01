@@ -1,5 +1,9 @@
 lockfileVersion: '6.0'
 
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
 dependencies:
   '@monaco-editor/react':
     specifier: ^4.4.6
@@ -11,8 +15,8 @@ dependencies:
     specifier: ^1.2.1
     version: 1.2.1
   css-to-tailwind-translator:
-    specifier: ^1.2.3
-    version: 1.2.3
+    specifier: ^1.2.4
+    version: 1.2.4
   next:
     specifier: 13.2.4
     version: 13.2.4(@babel/core@7.21.8)(react-dom@18.2.0)(react@18.2.0)
@@ -2293,8 +2297,8 @@ packages:
       nth-check: 2.1.1
     dev: true
 
-  /css-to-tailwind-translator@1.2.3:
-    resolution: {integrity: sha512-1E2dSvJpkR93B9WLbtBVgm74i/T1WN3vh49SHWznH60gY7MPuQPof3mQTEwDYrOZZ9d8GFr4rY4X7xNY01NQ8w==}
+  /css-to-tailwind-translator@1.2.4:
+    resolution: {integrity: sha512-yUctNPsZpI/A5Wjc89p37EFw3LYm+bNIvm6zrhVSSh6LPwsln79i9JFxElzgGndOLv6V5iO0T8n+LYdZzKeOuQ==}
     dev: false
 
   /css-tree@2.2.1:
