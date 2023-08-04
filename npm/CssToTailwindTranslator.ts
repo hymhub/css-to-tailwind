@@ -1886,7 +1886,7 @@ const propertyMap: Map<string, Record<string, string> | ((val: string) => string
         })
         return canUsePipeV ? pipeV : ''
       })
-      return canUse ? `transform ${[...new Set(res)].join(' ')}` : `[transform:${getCustomVal(val)}]`
+      return canUse ? `${[...new Set(res)].join(' ')}` : `[transform:${getCustomVal(val)}]`
     }
   ],
   [
