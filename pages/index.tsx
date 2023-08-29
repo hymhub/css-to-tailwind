@@ -184,6 +184,9 @@ export default function Home() {
           onChange={handleChange}
           value={''}
           onMount={handleEditorDidMount}
+          loading={
+            <div className="text-[#111827] dark:text-[#abb2bf] text-[37px]">Loading...</div>
+          }
           options={{
             fontSize: 18
           }}
