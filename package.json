@@ -1,6 +1,6 @@
 {
   "name": "css-to-tailwind",
-  "version": "1.2.6",
+  "version": "1.2.8",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -15,7 +15,7 @@
     "@monaco-editor/react": "^4.4.6",
     "clipboard": "^2.0.11",
     "clsx": "^1.2.1",
-    "css-to-tailwind-translator": "^1.2.6",
+    "css-to-tailwind-translator": "^1.2.8",
     "next": "13.2.4",
     "react": "18.2.0",
     "react-dom": "18.2.0",

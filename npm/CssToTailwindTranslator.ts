@@ -455,18 +455,14 @@ const propertyMap: Map<string, Record<string, string> | ((val: string) => string
     'border',
     val => {
       val = val.replace(/\(.+?\)/, v => v.replace(/\s/g, ''))
-      const vals: string = val.split(' ').filter(v => v !== '').map(v => (isUnit(v) || isColor(v)) ? ({ 'transparent': 'border-transparent', 'currentColor': 'border-current', 'currentcolor': 'border-current' }[val] ?? `border-[${v}]`) : ((propertyMap.get('border-style') as Record<string, string>)[v] ?? '')).filter(v => v !== '').join(' ')
+      const vals: string = val.split(' ').filter(v => v !== '').map(v => (isUnit(v) || isColor(v)) ? ({ 'transparent': 'border-transparent', 'currentColor': 'border-current', 'currentcolor': 'border-current' }[val] ?? (propertyMap.get('border-style') as Record<string, string>)[v] ?? `border-[${v}]`) : ((propertyMap.get('border-style') as Record<string, string>)[v] ?? '')).filter(v => v !== '').join(' ')
       return vals
     }
   ],
   [
     'border-bottom',
     val => {
-      if (isUnit(val)) {
-        return `border-b-[${getCustomVal(val)}]`
-      } else {
-        return `[border-bottom:${getCustomVal(val)}]`
-      }
+      return `[border-bottom:${getCustomVal(val)}]`
     }
   ],
   [
@@ -528,11 +524,7 @@ const propertyMap: Map<string, Record<string, string> | ((val: string) => string
   [
     'border-left',
     val => {
-      if (isUnit(val)) {
-        return `border-l-[${getCustomVal(val)}]`
-      } else {
-        return `[border-left:${getCustomVal(val)}]`
-      }
+      return `[border-left:${getCustomVal(val)}]`
     }
   ],
   [
@@ -577,11 +569,7 @@ const propertyMap: Map<string, Record<string, string> | ((val: string) => string
   [
     'border-right',
     val => {
-      if (isUnit(val)) {
-        return `border-r-[${getCustomVal(val)}]`
-      } else {
-        return `[border-right:${getCustomVal(val)}]`
-      }
+      return `[border-right:${getCustomVal(val)}]`
     }
   ],
   [
@@ -609,11 +597,7 @@ const propertyMap: Map<string, Record<string, string> | ((val: string) => string
   [
     'border-top',
     val => {
-      if (isUnit(val)) {
-        return `border-t-[${getCustomVal(val)}]`
-      } else {
-        return `[border-top:${getCustomVal(val)}]`
-      }
+      return `[border-top:${getCustomVal(val)}]`
     }
   ],
   [
